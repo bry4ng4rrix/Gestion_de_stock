@@ -127,7 +127,7 @@ const Page = () => {
             {filteredProduits.map((produit, index) => (
               <Card
                 key={index}
-                className='group overflow-hidden border-border hover:border-primary hover:shadow-lg transition-all duration-300 bg-card/50 backdrop-blur-sm hover:bg-card'
+                className='group overflow-hidden border-border hover:border-primary hover:shadow-xl transition-all duration-300 bg-card/50 backdrop-blur-sm hover:bg-card'
               >
                 {/* Image Container */}
                 <div className='relative w-full h-48 bg-muted overflow-hidden'>

@@ -60,7 +60,7 @@ export default function ClientLayout() {
               variant="ghost"
               className={cn(
                 'flex items-center gap-2',
-                isActive(item.href) && 'bg-teal-500 text-slate-50 hover:bg-sky-500 hover:text-gray-50'
+                isActive(item.href) && 'bg-teal-500 text-slate-50 hover:bg-transparent hover:border hover:border-teal-500'
               )}
             >
               <Link to={item.href}>
