@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Home, ShoppingCart, User, Menu, Package } from 'lucide-react';
+import { Home, ShoppingCart, User, Menu, Package , Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -60,7 +60,7 @@ export default function ClientLayout() {
               variant="ghost"
               className={cn(
                 'flex items-center gap-2',
-                isActive(item.href) && 'bg-slate-950 text-slate-50'
+                isActive(item.href) && 'bg-teal-500 text-slate-50 hover:bg-sky-500 hover:text-gray-50'
               )}
             >
               <Link to={item.href}>
@@ -69,6 +69,7 @@ export default function ClientLayout() {
               </Link>
             </Button>
           ))}
+          <Button className="ml-auto bg-sky-500">Login <Users /></Button>
         </nav>
 
         {/* Mobile Menu */}
