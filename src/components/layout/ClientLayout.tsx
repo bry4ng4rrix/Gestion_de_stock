@@ -105,7 +105,7 @@ export default function ClientLayout() {
     </header>
 
       {/* Main content */}
-      <main className="flex-1">
+      <main className="flex-1 bg-gray-100">
         <Outlet />
       </main>
 
