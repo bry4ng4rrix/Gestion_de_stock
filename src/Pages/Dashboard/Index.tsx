@@ -1,6 +1,6 @@
-import { Card , CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 
-const index = () => {
+const Dashboard = () => {
   return (
     <div className='p-2  h-screen space-y-4'>
       <div className="grid grid-cols-3 gap-2">
@@ -17,4 +17,4 @@ const index = () => {
   )
 }
 
-export default index
+export default Dashboard

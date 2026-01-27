@@ -8,12 +8,19 @@ import { Search, ShoppingCart, Star, BadgeCheck, AlertTriangle, X, Plus, Minus }
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-
+interface Produit {
+  nom: string;
+  prix: number;
+  description: string;
+  image: string;
+  stock: number;
+  categorie: string;
+}
 
 const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
-  const [cartItems, setCartItems] = useState([])
+  const [cartItems, setCartItems] = useState<Array<{nom: string; prix: number; quantity: number; image?: string; categorie: string}>>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
 
   const Produits = [
@@ -79,37 +86,40 @@ const Page = () => {
   }, [selectedCategory, searchQuery])
 
   // Gestion du panier
-  const addToCart = (produit) => {
-    const existingItem = cartItems.find(item => item.nom === produit.nom)
-    
-    if (existingItem) {
-      setCartItems(cartItems.map(item =>
-        item.nom === produit.nom 
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ))
-    } else {
-      setCartItems([...cartItems, { ...produit, quantity: 1 }])
-    }
-  }
+  const addToCart = (produit: Produit) => {
+    setCartItems(prevItems => {
+      const existingItem = prevItems.find(item => item.nom === produit.nom);
+      if (existingItem) {
+        return prevItems.map(item =>
+          item.nom === produit.nom
+            ? { ...item, quantity: (item.quantity || 1) + 1 }
+            : item
+        );
+      }
+      return [...prevItems, { 
+        nom: produit.nom, 
+        prix: produit.prix, 
+        quantity: 1, 
+        image: produit.image, 
+        categorie: produit.categorie 
+      }];
+    });
+  };
 
-  const removeFromCart = (nom) => {
-    setCartItems(cartItems.filter(item => item.nom !== nom))
-  }
+  const removeFromCart = (productName: string) => {
+    setCartItems(prevItems => prevItems.filter(item => item.nom !== productName));
+  };
 
-  const updateQuantity = (nom, quantity) => {
-    if (quantity <= 0) {
-      removeFromCart(nom)
-    } else {
-      setCartItems(cartItems.map(item =>
-        item.nom === nom 
-          ? { ...item, quantity }
-          : item
-      ))
-    }
-  }
+  const updateQuantity = (productName: string, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    setCartItems(prevItems =>
+      prevItems.map(item =>
+        item.nom === productName ? { ...item, quantity: newQuantity } : item
+      )
+    );
+  };
 
-  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+  const totalItems = cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.prix * item.quantity), 0)
 
   return (
