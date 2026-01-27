@@ -5,8 +5,8 @@ import Dashboard from './Pages/Dashboard/Index';
 import Produit from './Pages/Dashboard/Produit';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import ClientLayout from '@/components/layout/ClientLayout';
-import Historique from './Pages/Client/Historique';
-
+import Historique from '@/Pages/Client/Historique';
+import Profile from '@/Pages/Client/Profile'
 const App = () => {
   return (
     <Router>
@@ -17,7 +17,7 @@ const App = () => {
             <Route path="/" element={<Home />} />
             <Route path="/panier" element={<div>Panier</div>} />
             <Route path="/historique" element={<Historique />} />
-            <Route path="/compte" element={<div>Mon Compte</div>} />
+            <Route path="/compte" element={<Profile />} />
           </Route>
           
           {/* Routes du tableau de bord avec mise en page */}
