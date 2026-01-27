@@ -65,8 +65,8 @@ export default function ClientLayout() {
             </Button>
           ))}
           <Button 
-          variant="outline"
-          className="ml-auto bg-transparent ">Login <Users /></Button>
+          variant="default"
+          className="ml-auto bg-lime-500 text-lime-50  hover:bg-lime-600 rounded-full"> <Users /></Button>
         </nav>
 
         {/* Mobile Menu */}

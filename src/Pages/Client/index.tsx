@@ -262,7 +262,7 @@ const Page = () => {
                     size='sm'
                     onClick={() => addToCart(produit)}
                     disabled={produit.stock === 0}
-                    className='bg-lime-500 text-lime-50 hover:bg-lime-700 hover:text-lime-50 gap-2 disabled:bg-lime-500 disabled:text-lime-950 disabled:cursor-not-allowed '
+                    className='bg-green-500 text-lime-50 hover:bg-lime-700 hover:text-lime-50 gap-2 disabled:bg-lime-500 disabled:text-lime-950 disabled:cursor-not-allowed '
                   >
                     <ShoppingCart size={16} />
                     Ajouter
