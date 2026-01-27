@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Home, ShoppingCart, User, Menu, Package , Users } from 'lucide-react';
+import { Home, ShoppingCart, User, Menu, Package , Users , ClipboardClock } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -19,14 +19,9 @@ const navItems: NavItem[] = [
     href: '/',
   },
   {
-    title: 'Boutique',
-    icon: <Package className="h-5 w-5" />,
-    href: '/boutique',
-  },
-  {
-    title: 'Panier',
-    icon: <ShoppingCart className="h-5 w-5" />,
-    href: '/panier',
+    title: 'Historique',
+    icon: <ClipboardClock className="h-5 w-5" />,
+    href: '/historique',
   },
   {
     title: 'Mon Compte',

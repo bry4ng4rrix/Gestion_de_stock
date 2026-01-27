@@ -5,6 +5,7 @@ import Dashboard from './Pages/Dashboard/Index';
 import Produit from './Pages/Dashboard/Produit';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import ClientLayout from './components/layout/ClientLayout';
+import Historique from './Pages/Client/Historique';
 
 const App = () => {
   return (
@@ -14,8 +15,8 @@ const App = () => {
           {/* Routes publiques avec ClientLayout */}
           <Route element={<ClientLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path="/boutique" element={<div>Boutique</div>} />
             <Route path="/panier" element={<div>Panier</div>} />
+            <Route path="/historique" element={<Historique />} />
             <Route path="/compte" element={<div>Mon Compte</div>} />
           </Route>
           

@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react'
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Search, ShoppingCart, Star } from "lucide-react"
+import { Search, ShoppingCart, Star, BadgeCheck, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -25,7 +25,7 @@ const Page = () => {
       prix: 299,
       description: "Casque audio sans fil premium",
       image: "https://via.placeholder.com/300x200?text=Casque+Audio",
-      stock: 12,
+      stock: 0,
       categorie: "Électronique"
     },
     {
@@ -101,7 +101,8 @@ const Page = () => {
       {/* Main Content */}
       <main className=' mx-auto px-4 sm:px-6 lg:px-8'>
         {/* Category Filter */}
-        <div className='mb-12'>
+       <div className='flex justify-between items-center'>
+         <div className='mb-12 '>
           <h2 className='text-sm font-semibold text-foreground mb-4'>Catégories</h2>
           <div className='flex flex-wrap gap-3'>
             {categories.map((category) => (
@@ -111,15 +112,20 @@ const Page = () => {
                 className={cn(
                   'px-6 py-2.5 rounded-full font-medium transition-all duration-200 text-sm',
                   selectedCategory === category
-                    ? 'bg-primary text-primary-foreground shadow-md hover:shadow-lg'
-                    : 'bg-card border border-border text-foreground hover:border-primary hover:bg-secondary/50'
+                    ? 'bg-sky-500 text-sky-50 shadow-md hover:shadow-lg'
+                    : 'bg-card border border-border text-foreground hover:border-sky-500 hover:bg-secondary/50'
                 )}
               >
                 {category}
               </button>
             ))}
           </div>
+          
         </div>
+        <div className=''>
+          <Button className='bg-lime-500 text-lime-50 hover:bg-lime-600 hover:text-lime-50'><ShoppingCart className='h-6 w-6' /> Panier</Button>
+        </div>
+       </div>
 
         {/* Products Grid */}
         {filteredProduits.length > 0 ? (
@@ -127,7 +133,7 @@ const Page = () => {
             {filteredProduits.map((produit, index) => (
               <Card
                 key={index}
-                className='group overflow-hidden border-border hover:border-primary hover:shadow-xl transition-all duration-300 bg-card/50 backdrop-blur-sm hover:bg-card'
+                className='group overflow-hidden border-border hover:border-sky-500 hover:shadow-xl transition-all duration-300 bg-card/50 backdrop-blur-sm hover:bg-card'
               >
                 {/* Image Container */}
                 <div className='relative w-full h-48 bg-muted overflow-hidden'>
@@ -137,8 +143,23 @@ const Page = () => {
                     className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
                   />
                   <div className='absolute top-3 right-3'>
-                    <Badge className='bg-primary text-primary-foreground'>
-                      {produit.stock > 0 ? 'Disponible' : 'Rupture'}
+                    <Badge className={cn(
+                      'text-white flex items-center gap-1',
+                      produit.stock > 0 
+                        ? 'bg-green-500 hover:bg-green-600' 
+                        : 'bg-amber-500 hover:bg-amber-600'
+                    )}>
+                      {produit.stock > 0 ? (
+                        <>
+                          <BadgeCheck className="h-3.5 w-3.5" />
+                          <span>Disponible</span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertTriangle className="h-3.5 w-3.5" />
+                          <span>Rupture</span>
+                        </>
+                      )}
                     </Badge>
                   </div>
                 </div>
@@ -184,7 +205,7 @@ const Page = () => {
                   </div>
                   <Button
                     size='sm'
-                    className='bg-primary text-primary-foreground hover:bg-primary/90 gap-2'
+                    className='bg-lime-500 text-lime-50 hover:bg-lime-700 hover:text-lime-50 gap-2'
                   >
                     <ShoppingCart size={16} />
                     Ajouter
