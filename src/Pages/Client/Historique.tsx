@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Card } from '@/components/ui/card';
 
 // Types
 type ProduitVendu = {
@@ -80,12 +81,12 @@ const Historique = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 bg-gray-50">
+    <div className="min-h-screen p-6 ">
       <div className=" mx-auto">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Historique des Ventes</h1>
         
         {/* Filtres */}
-        <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+        <div className=" p-4 rounded-lg shadow-sm mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
@@ -122,30 +123,30 @@ const Historique = () => {
         </div>
 
         {/* Tableau des factures */}
-        <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+        <Card className="bg-white shadow-sm rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <thead className="bg-gray-50 fon-bold">
+                <tr >
+                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     <div className="flex items-center">
                       N° Facture
                       <ArrowUpDown className="ml-1 h-4 w-4" />
                     </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Montant Total
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Produits
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-2 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Catégories
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -165,7 +166,7 @@ const Historique = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {calculerTotalProduits(facture.produits)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
                       {getNombreCategories(facture.produits)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
@@ -205,7 +206,7 @@ const Historique = () => {
               </tbody>
             </table>
           </div>
-        </div>
+        </Card>
       </div>
 
       {/* Modal de détail de la facture */}
