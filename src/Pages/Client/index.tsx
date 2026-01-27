@@ -113,7 +113,7 @@ const Page = () => {
   const totalPrice = cartItems.reduce((sum, item) => sum + (item.prix * item.quantity), 0)
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-background via-background to-secondary/5 py-8'>
+    <div className='min-h-screen  py-8'>
       {/* Header */}
       <header className='mb-12'>
         <div className='mx-auto px-4 sm:px-6 lg:px-8'>
@@ -161,23 +161,24 @@ const Page = () => {
           </div>
           
         </div>
-        <div className=''>
-          {/* panier all */}
-          <button 
-            onClick={() => setIsCartOpen(true)}
-            className='relative inline-flex items-center gap-2 px-4 py-2.5 bg-lime-500 text-lime-50 hover:bg-lime-600 rounded-lg font-medium transition-all duration-200'
-          >
-            <ShoppingCart className='h-6 w-6' />
-            Panier
-            {totalItems > 0 && (
-              <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center'>
-                {totalItems}
-              </span>
-            )}
-          </button>
-          {/* endpanier all */}
-        </div>
+        
        </div>
+
+       
+      {totalItems > 0 && (
+  <div className="fixed bottom-6 right-6 z-50">
+    <Button 
+      onClick={() => setIsCartOpen(true)}
+      className="relative inline-flex items-center gap-2 px-6 py-3 bg-lime-500 text-lime-50 hover:bg-lime-600 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+    >
+      <ShoppingCart className="h-5 w-5" />
+      <span className="font-semibold">Panier</span>
+      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center">
+        {totalItems}
+      </span>
+    </Button>
+  </div>
+)}
 
         {/* Products Grid */}
         {filteredProduits.length > 0 ? (

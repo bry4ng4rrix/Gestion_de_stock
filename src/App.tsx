@@ -4,7 +4,7 @@ import Home from './Pages/Client/index';
 import Dashboard from './Pages/Dashboard/Index';
 import Produit from './Pages/Dashboard/Produit';
 import { DashboardLayout } from './components/layout/DashboardLayout';
-import ClientLayout from './components/layout/ClientLayout';
+import ClientLayout from '@/components/layout/ClientLayout';
 import Historique from './Pages/Client/Historique';
 
 const App = () => {

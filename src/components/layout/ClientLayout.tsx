@@ -36,10 +36,10 @@ export default function ClientLayout() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="flex min-h-screen flex-col ">
+    <div className="flex min-h-screen flex-col bg-lime-50">
       {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b bg-background backdrop-blur supports-[backdrop-filter]:bg-background/2">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <header className="sticky top-0 z-40 w-full border-b bg-blue-50/50 backdrop-blur supports-[backdrop-filter]:bg-background/2">
+      <div className=" mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2">
           <Package className="h-6 w-6" />
@@ -64,7 +64,9 @@ export default function ClientLayout() {
               </Link>
             </Button>
           ))}
-          <Button className="ml-auto bg-sky-500">Login <Users /></Button>
+          <Button 
+          variant="outline"
+          className="ml-auto bg-transparent ">Login <Users /></Button>
         </nav>
 
         {/* Mobile Menu */}
@@ -101,7 +103,7 @@ export default function ClientLayout() {
     </header>
 
       {/* Main content */}
-      <main className="flex-1 bg-gray-100">
+      <main className="flex-1 ">
         <Outlet />
       </main>
 
