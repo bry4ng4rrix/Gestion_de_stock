@@ -54,8 +54,8 @@ export default function ClientLayout() {
               asChild
               variant="ghost"
               className={cn(
-                'flex items-center gap-2',
-                isActive(item.href) && 'bg-teal-500 text-slate-50 hover:bg-transparent hover:border hover:border-teal-500'
+                'flex items-center gap-2 hover:border-b hover:border-sky-500 hover:bg-transparent',
+                isActive(item.href) && 'bg-teal-500 hover:bg-teal-500 hover:text-slate-50 text-slate-50 hover:shadow-lg'
               )}
             >
               <Link to={item.href}>
@@ -66,7 +66,8 @@ export default function ClientLayout() {
           ))}
           <Button 
           variant="default"
-          className="ml-auto bg-lime-500 text-lime-50  hover:bg-lime-600 rounded-full"> <Users /></Button>
+          className="ml-auto bg-lime-500 text-lime-50  hover:bg-transparent hover:shadow-lg 
+                   hover:text-slate-950 hover:border hover:border-lime-500 rounded-lg"> <Users />Login</Button>
         </nav>
 
         {/* Mobile Menu */}
