@@ -1,22 +1,27 @@
+'use client';
 
 import { useState, useMemo } from 'react'
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Search, ShoppingCart, Star, BadgeCheck, AlertTriangle } from "lucide-react"
+import { Search, ShoppingCart, Star, BadgeCheck, AlertTriangle, X, Plus, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+
+
 
 const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
+  const [cartItems, setCartItems] = useState([])
+  const [isCartOpen, setIsCartOpen] = useState(false)
 
   const Produits = [
     {
       nom: "Laptop Pro",
       prix: 1299,
       description: "Ordinateur portable haute performance",
-      image: "https://via.placeholder.com/300x200?text=Laptop+Pro",
+      image: "https://source.unsplash.com/random/400x300",
       stock: 5,
       categorie: "Électronique"
     },
@@ -24,7 +29,7 @@ const Page = () => {
       nom: "Casque Audio",
       prix: 299,
       description: "Casque audio sans fil premium",
-      image: "https://via.placeholder.com/300x200?text=Casque+Audio",
+      image: "https://picsum.photos/200/300",
       stock: 0,
       categorie: "Électronique"
     },
@@ -72,6 +77,40 @@ const Page = () => {
       return matchCategory && matchSearch
     })
   }, [selectedCategory, searchQuery])
+
+  // Gestion du panier
+  const addToCart = (produit) => {
+    const existingItem = cartItems.find(item => item.nom === produit.nom)
+    
+    if (existingItem) {
+      setCartItems(cartItems.map(item =>
+        item.nom === produit.nom 
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      ))
+    } else {
+      setCartItems([...cartItems, { ...produit, quantity: 1 }])
+    }
+  }
+
+  const removeFromCart = (nom) => {
+    setCartItems(cartItems.filter(item => item.nom !== nom))
+  }
+
+  const updateQuantity = (nom, quantity) => {
+    if (quantity <= 0) {
+      removeFromCart(nom)
+    } else {
+      setCartItems(cartItems.map(item =>
+        item.nom === nom 
+          ? { ...item, quantity }
+          : item
+      ))
+    }
+  }
+
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+  const totalPrice = cartItems.reduce((sum, item) => sum + (item.prix * item.quantity), 0)
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-background via-background to-secondary/5 py-8'>
@@ -123,7 +162,20 @@ const Page = () => {
           
         </div>
         <div className=''>
-          <Button className='bg-lime-500 text-lime-50 hover:bg-lime-600 hover:text-lime-50'><ShoppingCart className='h-6 w-6' /> Panier</Button>
+          {/* panier all */}
+          <button 
+            onClick={() => setIsCartOpen(true)}
+            className='relative inline-flex items-center gap-2 px-4 py-2.5 bg-lime-500 text-lime-50 hover:bg-lime-600 rounded-lg font-medium transition-all duration-200'
+          >
+            <ShoppingCart className='h-6 w-6' />
+            Panier
+            {totalItems > 0 && (
+              <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center'>
+                {totalItems}
+              </span>
+            )}
+          </button>
+          {/* endpanier all */}
         </div>
        </div>
 
@@ -138,7 +190,8 @@ const Page = () => {
                 {/* Image Container */}
                 <div className='relative w-full h-48 bg-muted overflow-hidden'>
                   <img
-                    src={produit.image || "/placeholder.svg"}
+                    // src={produit.image || "/placeholder.svg"}
+                    src={`https://picsum.photos/seed/${Math.random()}/400/300`}
                     alt={produit.nom}
                     className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
                   />
@@ -203,13 +256,17 @@ const Page = () => {
                       Stock: {produit.stock}
                     </p>
                   </div>
+                  {/* panier ajouter*/}
                   <Button
                     size='sm'
-                    className='bg-lime-500 text-lime-50 hover:bg-lime-700 hover:text-lime-50 gap-2'
+                    onClick={() => addToCart(produit)}
+                    disabled={produit.stock === 0}
+                    className='bg-lime-500 text-lime-50 hover:bg-lime-700 hover:text-lime-50 gap-2 disabled:bg-lime-500 disabled:text-lime-950 disabled:cursor-not-allowed '
                   >
                     <ShoppingCart size={16} />
                     Ajouter
                   </Button>
+                  {/* endpannier ajouter */}
                 </CardFooter>
               </Card>
             ))}
@@ -222,6 +279,121 @@ const Page = () => {
           </div>
         )}
       </main>
+
+      {/* Cart Modal/Dialog */}
+      {isCartOpen && (
+        <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4'>
+          <div className='bg-card border border-border rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto'>
+            {/* Modal Header */}
+            <div className='sticky top-0 flex items-center justify-between p-6 border-b border-border bg-card'>
+              <div className='flex items-center gap-3'>
+                <ShoppingCart className='h-6 w-6 text-lime-600' />
+                <h2 className='text-2xl font-bold text-foreground'>Panier</h2>
+              </div>
+              <Button
+                onClick={() => setIsCartOpen(false)}
+                className='p-2 hover:bg-muted hover:rounded-full hover:bg-red-500 hover:text-secondary hover:border-red-500 rounded-lg transition-colors'
+                variant='outline'
+              >
+                <X className='h-5 w-5' />
+              </Button>
+            </div>
+
+            {/* Modal Content */}
+            <div className='p-6'>
+              {cartItems.length === 0 ? (
+                <div className='text-center py-12'>
+                  <ShoppingCart className='h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50' />
+                  <p className='text-muted-foreground text-lg'>Votre panier est vide</p>
+                </div>
+              ) : (
+                <div className='space-y-4'>
+                  {cartItems.map((item) => (
+                    <div
+                      key={item.nom}
+                      className='flex items-center gap-4 p-4 bg-secondary/30 rounded-lg border border-border hover:bg-secondary/50 transition-colors'
+                    >
+                      {/* Product Image */}
+                      <img
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.nom}
+                        className='w-20 h-20 object-cover rounded-lg'
+                      />
+
+                      {/* Product Info */}
+                      <div className='flex-1'>
+                        <h3 className='font-semibold text-foreground'>{item.nom}</h3>
+                        <p className='text-sm text-muted-foreground'>${item.prix}</p>
+                        <p className='text-xs text-muted-foreground mt-1'>{item.categorie}</p>
+                      </div>
+
+                      {/* Quantity Controls */}
+                      <div className='flex items-center gap-2 bg-background rounded-lg p-2'>
+                        <button
+                          onClick={() => updateQuantity(item.nom, item.quantity - 1)}
+                          className='p-1 hover:bg-secondary rounded transition-colors'
+                        >
+                          <Minus size={16} className='text-foreground' />
+                        </button>
+                        <span className='w-8 text-center font-semibold text-foreground'>
+                          {item.quantity}
+                        </span>
+                        <button
+                          onClick={() => updateQuantity(item.nom, item.quantity + 1)}
+                          className='p-1 hover:bg-secondary rounded transition-colors'
+                        >
+                          <Plus size={16} className='text-foreground' />
+                        </button>
+                      </div>
+
+                      {/* Subtotal */}
+                      <div className='text-right'>
+                        <p className='font-bold text-foreground'>
+                          ${(item.prix * item.quantity).toFixed(2)}
+                        </p>
+                      </div>
+
+                      {/* Delete Button */}
+                      <button
+                        onClick={() => removeFromCart(item.nom)}
+                        className='p-2 hover:bg-red-500/20 rounded-lg transition-colors'
+                      >
+                        <X size={20} className='text-red-500' />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            {cartItems.length > 0 && (
+              <div className='sticky bottom-0 border-t border-border p-6 bg-card space-y-4'>
+                <div className='flex items-center justify-between text-lg'>
+                  <span className='font-semibold text-foreground'>Total:</span>
+                  <span className='font-bold text-2xl text-lime-600'>
+                    ${totalPrice.toFixed(2)}
+                  </span>
+                </div>
+                <div className='flex gap-3'>
+                  <Button
+                    onClick={() => setIsCartOpen(false)}
+                    variant='outline'
+                    className='flex-1'
+                  >
+                    Continuer vos achats
+                  </Button>
+                  <Button
+                    className='flex-1 bg-lime-500 text-lime-50 hover:bg-lime-600'
+                  >
+                    Procéder au paiement
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
