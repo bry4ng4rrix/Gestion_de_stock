@@ -64,7 +64,7 @@ const Historique = () => {
   };
 
   // Gérer l'impression
-  const handlePrint = (facture: Facture) => {
+  const handlePrint = () => {
     // Logique d'impression
     window.print();
   };
@@ -185,7 +185,7 @@ const Historique = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handlePrint(facture)}
+                        onClick={handlePrint}
                         className="text-gray-600 hover:bg-gray-50"
                       >
                         <Printer className="h-4 w-4 mr-1" />
@@ -291,7 +291,7 @@ const Historique = () => {
                 <div className='flex gap-2'>
                    <Button
                   variant="outline"
-                  onClick={() => handlePrint(factureSelectionnee)}
+                  onClick={handlePrint}
                   className="flex items-center border-lime-200"
                 >
                   <Printer className="h-4 w-4 mr-2" />
@@ -300,7 +300,7 @@ const Historique = () => {
 
                  <Button
                   variant="default"
-                  onClick={() => handlePrint(factureSelectionnee)}
+                  onClick={handlePrint}
                   className="flex items-center bg-blue-500 text-white hover:bg-blue-800"
                 >
                   <SendHorizontal className="h-4 w-4 mr-2" />
