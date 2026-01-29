@@ -15,11 +15,13 @@ interface Produit {
   image: string;
   stock: number;
   categorie: string;
+  fournisseur: string;
 }
 
 const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
+  const [fournisseurQuery, setFournisseurQuery] = useState('')
   const [cartItems, setCartItems] = useState<Array<{nom: string; prix: number; quantity: number; image?: string; categorie: string}>>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
 
@@ -30,7 +32,8 @@ const Page = () => {
       description: "Ordinateur portable haute performance",
       image: "https://source.unsplash.com/random/400x300",
       stock: 5,
-      categorie: "Électronique"
+      categorie: "Électronique",
+      fournisseur : "star",
     },
     {
       nom: "Casque Audio",
@@ -38,7 +41,8 @@ const Page = () => {
       description: "Casque audio sans fil premium",
       image: "https://picsum.photos/200/300",
       stock: 0,
-      categorie: "Électronique"
+      categorie: "Électronique",
+      fournisseur : "star",
     },
     {
       nom: "Montre Connectée",
@@ -46,7 +50,8 @@ const Page = () => {
       description: "Montre intelligente avec GPS",
       image: "https://via.placeholder.com/300x200?text=Montre+Connectée",
       stock: 8,
-      categorie: "Accessoires"
+      categorie: "Accessoires",
+      fournisseur : "obe",
     },
     {
       nom: "Chaise Ergonomique",
@@ -54,7 +59,8 @@ const Page = () => {
       description: "Chaise de bureau confortable",
       image: "https://via.placeholder.com/300x200?text=Chaise+Ergonomique",
       stock: 3,
-      categorie: "Mobilier"
+      categorie: "Mobilier",
+      fournisseur : "obe",
     },
     {
       nom: "Desk Lamp LED",
@@ -62,7 +68,8 @@ const Page = () => {
       description: "Lampe de bureau à LED",
       image: "https://via.placeholder.com/300x200?text=Desk+Lamp",
       stock: 15,
-      categorie: "Mobilier"
+      categorie: "Mobilier",
+      fournisseur : "abc",
     },
     {
       nom: "Souris Sans Fil",
@@ -70,7 +77,8 @@ const Page = () => {
       description: "Souris ergonomique sans fil",
       image: "https://via.placeholder.com/300x200?text=Souris+Sans+Fil",
       stock: 20,
-      categorie: "Accessoires"
+      categorie: "Accessoires",
+      fournisseur : "abc",
     },
   ]
 
@@ -78,12 +86,14 @@ const Page = () => {
 
   const filteredProduits = useMemo(() => {
     return Produits.filter(produit => {
-      const matchCategory = selectedCategory === 'Tous' || produit.categorie === selectedCategory
-      const matchSearch = produit.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      const matchesSearch = produit.nom.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          produit.description.toLowerCase().includes(searchQuery.toLowerCase())
-      return matchCategory && matchSearch
+      const matchesCategory = selectedCategory === 'Tous' || produit.categorie === selectedCategory
+      const matchesFournisseur = !fournisseurQuery || 
+                               produit.fournisseur.toLowerCase().includes(fournisseurQuery.toLowerCase())
+      return matchesSearch && matchesCategory && matchesFournisseur
     })
-  }, [selectedCategory, searchQuery])
+  }, [searchQuery, selectedCategory, fournisseurQuery])
 
   // Gestion du panier
   const addToCart = (produit: Produit) => {
@@ -135,14 +145,16 @@ const Page = () => {
           </div>
 
           {/* Search Bar */}
-          <div className='flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-shadow'>
-            <Search size={20} className='text-muted-foreground' />
-            <Input
-              placeholder="Rechercher un produit..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className='border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground'
-            />
+          <div className='flex flex-col sm:flex-row gap-4 mb-6'>
+            <div className='flex-1 flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-3 shadow-sm hover:shadow-md transition-shadow'>
+              <Search size={20} className='text-muted-foreground' />
+              <Input
+                placeholder="Rechercher un produit..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className='border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground'
+              />
+            </div>
           </div>
         </div>
       </header>
@@ -171,7 +183,27 @@ const Page = () => {
           </div>
           
         </div>
-        
+        {/* recherche fournisseur */}
+        <div className=' flex items-center gap-3'>
+          
+          <div className='flex items-center gap-3 bg-card border border-border rounded-lg px-4 py-2.5 w-full max-w-xs shadow-sm hover:shadow-md transition-shadow'>
+            <Search size={18} className='text-muted-foreground' />
+            <Input
+              placeholder="Filtrer par fournisseur..."
+              value={fournisseurQuery}
+              onChange={(e) => setFournisseurQuery(e.target.value)}
+              className='border-0 bg-transparent focus-visible:ring-0 text-foreground placeholder:text-muted-foreground p-0 h-auto'
+            />
+            {fournisseurQuery && (
+              <button 
+                onClick={() => setFournisseurQuery('')}
+                className='text-muted-foreground hover:text-foreground transition-colors'
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        </div>
        </div>
 
        
@@ -237,6 +269,13 @@ const Page = () => {
                     <h3 className='text-lg font-semibold text-foreground mt-1 line-clamp-2'>
                       {produit.nom}
                     </h3>
+                    {produit.fournisseur && (
+                      <div className='mt-1'>
+                        <span className='text-xs bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 px-2 py-1 rounded-full'>
+                          {produit.fournisseur}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <p className='text-sm text-muted-foreground line-clamp-2 mb-4'>
                     {produit.description}
@@ -332,11 +371,18 @@ const Page = () => {
                       />
 
                       {/* Product Info */}
-                      <div className='flex-1'>
-                        <h3 className='font-semibold text-foreground'>{item.nom}</h3>
-                        <p className='text-sm text-muted-foreground'>${item.prix}</p>
+                      <CardContent className='p-4'>
+                        <h3 className='font-semibold text-lg mb-1 line-clamp-1'>{item.nom}</h3>
+                        {item.fournisseur && (
+                          <div className='mb-2'>
+                            <span className='text-xs bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300 px-2 py-1 rounded-full'>
+                              {item.fournisseur}
+                            </span>
+                          </div>
+                        )}
+                        <p className='text-sm text-muted-foreground mb-3 line-clamp-2'>{item.description}</p>
                         <p className='text-xs text-muted-foreground mt-1'>{item.categorie}</p>
-                      </div>
+                      </CardContent>
 
                       {/* Quantity Controls */}
                       <div className='flex items-center gap-2 bg-background rounded-lg p-2'>

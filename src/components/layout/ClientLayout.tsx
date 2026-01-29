@@ -54,7 +54,7 @@ export default function ClientLayout() {
               asChild
               variant="ghost"
               className={cn(
-                'flex items-center gap-2 hover:border-b hover:border-sky-500 hover:bg-transparent',
+                'flex items-center gap-2  hover:border-sky-500 hover:bg-transparent',
                 isActive(item.href) && 'bg-teal-500 hover:bg-teal-500 hover:text-slate-50 text-slate-50 hover:shadow-lg'
               )}
             >
