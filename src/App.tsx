@@ -12,7 +12,7 @@ const App = () => {
     <Router>
       <SidebarProvider>
         <Routes>
-          {/* Routes publiques avec ClientLayout */}
+          {/* Routes publiques avec ClientLayout test */}
           <Route element={<ClientLayout />}>
             <Route path="/" element={<Home />} />
             <Route path="/panier" element={<div>Panier</div>} />
