@@ -22,7 +22,7 @@ const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
   const [fournisseurQuery, setFournisseurQuery] = useState('')
-  const [cartItems, setCartItems] = useState<Array<{nom: string; prix: number; quantity: number; image?: string; categorie: string}>>([])
+  const [cartItems, setCartItems] = useState<Array<{nom: string; prix: number; quantity: number; image?: string; categorie: string; description?: string; fournisseur?: string}>>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
 
   const Produits = [
@@ -111,7 +111,9 @@ const Page = () => {
         prix: produit.prix, 
         quantity: 1, 
         image: produit.image, 
-        categorie: produit.categorie 
+        categorie: produit.categorie,
+        description: produit.description,
+        fournisseur: produit.fournisseur
       }];
     });
   };
