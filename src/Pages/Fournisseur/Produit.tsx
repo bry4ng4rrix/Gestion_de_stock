@@ -47,7 +47,8 @@ const Produit = () => {
     quantite: '',
     prix: '',
     description: '',
-    dateAjout: ''
+    dateAjout: '',
+    image: ''
   })
   const [itemsPerPage, setItemsPerPage] = useState(10)
   const [currentPage, setCurrentPage] = useState(1)
@@ -146,7 +147,8 @@ const Produit = () => {
       quantite: produit.quantite.toString(),
       prix: produit.prix.toString(),
       description: produit.description,
-      dateAjout: produit.dateAjout
+      dateAjout: produit.dateAjout,
+      image: produit.image || ''
     })
     setEditModalOpen(true)
   }
@@ -167,7 +169,8 @@ const Produit = () => {
               quantite: parseInt(formData.quantite),
               prix: parseFloat(formData.prix),
               description: formData.description,
-              dateAjout: formData.dateAjout
+              dateAjout: formData.dateAjout,
+              image: formData.image
             }
           : p
       ))
@@ -188,7 +191,42 @@ const Produit = () => {
     }
     setProduits([...produits, newProduit])
     setAddModalOpen(false)
-    setFormData({ nom: '', quantite: '', prix: '', description: '', dateAjout: '' })
+    setFormData({ nom: '', quantite: '', prix: '', description: '', dateAjout: '', image: '' })
+  }
+
+  // Fonctions pour gérer les images
+  const handleImageUpload = (file: File) => {
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setFormData({ ...formData, image: e.target?.result as string })
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const files = Array.from(e.dataTransfer.files)
+    const imageFile = files.find(file => file.type.startsWith('image/'))
+    
+    if (imageFile) {
+      handleImageUpload(imageFile)
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleImageUpload(file)
+    }
   }
 
   return (
@@ -244,6 +282,45 @@ const Produit = () => {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder='Description'
                 />
+              </div>
+              <div>
+                <label className='text-sm font-medium'>Image</label>
+                <div
+                  className='border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors cursor-pointer'
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                >
+                  {formData.image ? (
+                    <div className='space-y-2'>
+                      <img
+                        src={formData.image}
+                        alt='Aperçu'
+                        className='w-32 h-32 object-cover rounded mx-auto'
+                      />
+                      <p className='text-sm text-gray-600'>Glissez une nouvelle image ou cliquez pour changer</p>
+                    </div>
+                  ) : (
+                    <div className='space-y-2'>
+                      <div className='w-12 h-12 bg-gray-200 rounded-full mx-auto flex items-center justify-center'>
+                        <Plus className='w-6 h-6 text-gray-400' />
+                      </div>
+                      <p className='text-sm text-gray-600'>Glissez une image ici ou cliquez pour sélectionner</p>
+                    </div>
+                  )}
+                  <input
+                    type='file'
+                    accept='image/*'
+                    onChange={handleFileChange}
+                    className='hidden'
+                    id='image-upload-add'
+                  />
+                  <label
+                    htmlFor='image-upload-add'
+                    className='cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium'
+                  >
+                    Choisir un fichier
+                  </label>
+                </div>
               </div>
             </div>
             <DialogFooter>
@@ -374,6 +451,45 @@ const Produit = () => {
                               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                               placeholder='Description'
                             />
+                          </div>
+                          <div>
+                            <label className='text-sm font-medium'>Image</label>
+                            <div
+                              className='border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors cursor-pointer'
+                              onDragOver={handleDragOver}
+                              onDrop={handleDrop}
+                            >
+                              {formData.image ? (
+                                <div className='space-y-2'>
+                                  <img
+                                    src={formData.image}
+                                    alt='Aperçu'
+                                    className='w-32 h-32 object-cover rounded mx-auto'
+                                  />
+                                  <p className='text-sm text-gray-600'>Glissez une nouvelle image ou cliquez pour changer</p>
+                                </div>
+                              ) : (
+                                <div className='space-y-2'>
+                                  <div className='w-12 h-12 bg-gray-200 rounded-full mx-auto flex items-center justify-center'>
+                                    <Plus className='w-6 h-6 text-gray-400' />
+                                  </div>
+                                  <p className='text-sm text-gray-600'>Glissez une image ici ou cliquez pour sélectionner</p>
+                                </div>
+                              )}
+                              <input
+                                type='file'
+                                accept='image/*'
+                                onChange={handleFileChange}
+                                className='hidden'
+                                id='image-upload'
+                              />
+                              <label
+                                htmlFor='image-upload'
+                                className='cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium'
+                              >
+                                Choisir un fichier
+                              </label>
+                            </div>
                           </div>
                         </div>
                         <DialogFooter>
