@@ -1,3 +1,10 @@
+'use client'
+
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { DropdownMenuContent } from "@/components/ui/dropdown-menu"
+import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu } from "@/components/ui/dropdown-menu"
+import { MoreHorizontal } from 'lucide-react' // Import MoreHorizontal here
 
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -19,15 +26,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Edit, Trash2, Plus, Search, MoreHorizontal } from 'lucide-react'
+import { Edit, Trash2, Plus, Search, Download, Printer } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { ImageIcon } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 interface Produit {
   id: number
@@ -36,18 +44,21 @@ interface Produit {
   prix: number
   description: string
   dateAjout: string
+  categorie: string
   image?: string
 }
 
 const Produit = () => {
   const [produits, setProduits] = useState<Produit[]>([
-    { id: 1, nom: 'Produit A', quantite: 50, prix: 25.99, description: 'Description du produit A', dateAjout: '2024-01-15', image: `https://picsum.photos/seed/produit1/400/300` },
-    { id: 2, nom: 'Produit B', quantite: 30, prix: 15.50, description: 'Description du produit B', dateAjout: '2024-01-20', image: `https://picsum.photos/seed/produit2/400/300` },
-    { id: 3, nom: 'Produit C', quantite: 100, prix: 45.00, description: 'Description du produit C', dateAjout: '2024-01-25', image: `https://picsum.photos/seed/produit3/400/300` },
+    { id: 1, nom: 'Produit A', quantite: 50, prix: 25.99, description: 'Description du produit A', dateAjout: '2024-01-15', categorie: 'Électronique', image: `https://picsum.photos/seed/produit1/400/300` },
+    { id: 2, nom: 'Produit B', quantite: 30, prix: 15.50, description: 'Description du produit B', dateAjout: '2024-01-20', categorie: 'Vêtements', image: `https://picsum.photos/seed/produit2/400/300` },
+    { id: 3, nom: 'Produit C', quantite: 100, prix: 45.00, description: 'Description du produit C', dateAjout: '2024-01-25', categorie: 'Électronique', image: `https://picsum.photos/seed/produit3/400/300` },
   ])
 
   const [filteredProduits, setFilteredProduits] = useState<Produit[]>(produits)
   const [searchTerm, setSearchTerm] = useState('')
+  const [filterCategorie, setFilterCategorie] = useState('')
+  const [filterDate, setFilterDate] = useState('')
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [selectedProduit, setSelectedProduit] = useState<Produit | null>(null)
@@ -56,16 +67,28 @@ const Produit = () => {
     quantite: '',
     prix: '',
     description: '',
+    categorie: '',
     image: ''
   })
 
+  const categories = ['Électronique', 'Vêtements', 'Livres', 'Maison', 'Sports']
+
   React.useEffect(() => {
-    const filtered = produits.filter(produit =>
+    let filtered = produits.filter(produit =>
       produit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       produit.description.toLowerCase().includes(searchTerm.toLowerCase())
     )
+
+    if (filterCategorie) {
+      filtered = filtered.filter(produit => produit.categorie === filterCategorie)
+    }
+
+    if (filterDate) {
+      filtered = filtered.filter(produit => produit.dateAjout === filterDate)
+    }
+
     setFilteredProduits(filtered)
-  }, [searchTerm, produits])
+  }, [searchTerm, produits, filterCategorie, filterDate])
 
   const handleImageUpload = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -106,6 +129,7 @@ const Produit = () => {
       quantite: produit.quantite.toString(),
       prix: produit.prix.toString(),
       description: produit.description,
+      categorie: produit.categorie,
       image: produit.image || ''
     })
     setEditModalOpen(true)
@@ -127,13 +151,14 @@ const Produit = () => {
               quantite: parseInt(formData.quantite),
               prix: parseFloat(formData.prix),
               description: formData.description,
+              categorie: formData.categorie,
               image: formData.image
             }
           : p
       ))
       setEditModalOpen(false)
       setSelectedProduit(null)
-      setFormData({ nom: '', quantite: '', prix: '', description: '', image: '' })
+      setFormData({ nom: '', quantite: '', prix: '', description: '', categorie: '', image: '' })
     }
   }
 
@@ -144,18 +169,103 @@ const Produit = () => {
       quantite: parseInt(formData.quantite),
       prix: parseFloat(formData.prix),
       description: formData.description,
+      categorie: formData.categorie,
       dateAjout: new Date().toISOString().split('T')[0],
       image: formData.image || `https://picsum.photos/seed/${Math.random()}/400/300`
     }
     setProduits([...produits, newProduit])
     setAddModalOpen(false)
-    setFormData({ nom: '', quantite: '', prix: '', description: '', image: '' })
+    setFormData({ nom: '', quantite: '', prix: '', description: '', categorie: '', image: '' })
   }
 
   const getStockStatus = (quantite: number) => {
     if (quantite === 0) return { label: 'Rupture', color: 'bg-red-500/10 text-red-700' }
     if (quantite < 20) return { label: 'Faible', color: 'bg-amber-500/10 text-amber-700' }
     return { label: 'En stock', color: 'bg-emerald-500/10 text-emerald-700' }
+  }
+
+  const handleExportXLSX = () => {
+    const headers = ['ID', 'Nom', 'Catégorie', 'Prix', 'Quantité', 'Date d\'ajout', 'Description']
+    const data = filteredProduits.map(p => [
+      p.id,
+      p.nom,
+      p.categorie,
+      p.prix.toFixed(2),
+      p.quantite,
+      p.dateAjout,
+      p.description
+    ])
+
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `produits_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      const html = `
+        <html>
+          <head>
+            <title>Catalogue de Produits</title>
+            <style>
+              body { font-family: Arial, sans-serif; margin: 20px; }
+              h1 { color: #333; }
+              table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+              th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+              th { background-color: #f5f5f5; font-weight: bold; }
+              tr:nth-child(even) { background-color: #f9f9f9; }
+              .date { color: #666; font-size: 12px; }
+            </style>
+          </head>
+          <body>
+            <h1>Catalogue de Produits</h1>
+            <p class="date">Généré le: ${new Date().toLocaleDateString('fr-FR')}</p>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Catégorie</th>
+                  <th>Prix</th>
+                  <th>Quantité</th>
+                  <th>Stock</th>
+                  <th>Date d'ajout</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${filteredProduits.map(p => {
+                  const stockStatus = getStockStatus(p.quantite)
+                  return `
+                    <tr>
+                      <td>${p.nom}</td>
+                      <td>${p.categorie}</td>
+                      <td>${p.prix.toFixed(2)} €</td>
+                      <td>${p.quantite}</td>
+                      <td>${stockStatus.label}</td>
+                      <td>${p.dateAjout}</td>
+                    </tr>
+                  `
+                }).join('')}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `
+      printWindow.document.write(html)
+      printWindow.document.close()
+      setTimeout(() => printWindow.print(), 250)
+    }
   }
 
   const FormModal = ({ isEdit = false }: { isEdit?: boolean }) => (
@@ -178,6 +288,24 @@ const Produit = () => {
             />
           </div>
           <div>
+            <label className='block text-sm font-medium mb-2'>Catégorie</label>
+            <Select value={formData.categorie} onValueChange={(value) => setFormData({ ...formData, categorie: value })}>
+              <SelectTrigger className='h-10'>
+                <SelectValue placeholder='Sélectionner une catégorie' />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className='grid grid-cols-2 gap-4'>
+          <div>
             <label className='block text-sm font-medium mb-2'>Prix (€)</label>
             <Input
               type='number'
@@ -188,18 +316,19 @@ const Produit = () => {
               className='h-10'
             />
           </div>
+          <div>
+            <label className='block text-sm font-medium mb-2'>Quantité</label>
+            <Input
+              type='number'
+              value={formData.quantite}
+              onChange={(e) => setFormData({ ...formData, quantite: e.target.value })}
+              placeholder='0'
+              className='h-10'
+            />
+          </div>
         </div>
 
-        <div>
-          <label className='block text-sm font-medium mb-2'>Quantité</label>
-          <Input
-            type='number'
-            value={formData.quantite}
-            onChange={(e) => setFormData({ ...formData, quantite: e.target.value })}
-            placeholder='0'
-            className='h-10'
-          />
-        </div>
+
 
         <div>
           <label className='block text-sm font-medium mb-2'>Description</label>
@@ -267,7 +396,7 @@ const Produit = () => {
     <div className='min-h-screen bg-gradient-to-br from-background via-background to-accent/5'>
       {/* Header */}
       <div className='sticky top-0 z-40 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80'>
-        <div className=' mx-auto px-6 py-8'>
+        <div className='max-w-7xl mx-auto px-6 py-8'>
           <div className='flex justify-between items-start gap-4'>
             <div className='flex-1'>
               <h1 className='text-4xl font-bold text-foreground mb-2'>Catalogue</h1>
@@ -287,9 +416,9 @@ const Produit = () => {
       </div>
 
       {/* Content */}
-      <div className='mx-auto px-6 py-8'>
+      <div className='max-w-7xl mx-auto px-6 py-8'>
         {/* Search Bar */}
-        <div className='mb-8'>
+        <div className='mb-6'>
           <div className='relative'>
             <Search className='absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none' />
             <Input
@@ -299,12 +428,73 @@ const Produit = () => {
               className='pl-12 h-12 text-base'
             />
           </div>
-          {searchTerm && (
-            <p className='mt-2 text-sm text-muted-foreground'>
-              {filteredProduits.length} résultat{filteredProduits.length !== 1 ? 's' : ''} trouvé{filteredProduits.length !== 1 ? 's' : ''}
-            </p>
-          )}
         </div>
+
+        {/* Filters and Actions Bar */}
+        <div className='mb-8 flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center flex-wrap'>
+          <div className='flex gap-4 flex-wrap items-center'>
+            <Select value={filterCategorie} onValueChange={setFilterCategorie}>
+              <SelectTrigger className='w-48'>
+                <SelectValue placeholder='Filtrer par catégorie' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value=''>Toutes les catégories</SelectItem>
+                {categories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Input
+              type='date'
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+              className='w-48'
+              placeholder='Filtrer par date'
+            />
+
+            {(filterCategorie || filterDate || searchTerm) && (
+              <Button
+                onClick={() => {
+                  setSearchTerm('')
+                  setFilterCategorie('')
+                  setFilterDate('')
+                }}
+                variant='outline'
+                size='sm'
+              >
+                Réinitialiser
+              </Button>
+            )}
+          </div>
+
+          <div className='flex gap-2 w-full sm:w-auto'>
+            <Button
+              onClick={handlePrint}
+              variant='outline'
+              className='gap-2 flex-1 sm:flex-initial'
+            >
+              <Printer className='h-4 w-4' />
+              Imprimer
+            </Button>
+            <Button
+              onClick={handleExportXLSX}
+              variant='outline'
+              className='gap-2 flex-1 sm:flex-initial'
+            >
+              <Download className='h-4 w-4' />
+              Exporter
+            </Button>
+          </div>
+        </div>
+
+        {(searchTerm || filterCategorie || filterDate) && (
+          <p className='text-sm text-muted-foreground mb-6'>
+            {filteredProduits.length} résultat{filteredProduits.length !== 1 ? 's' : ''} trouvé{filteredProduits.length !== 1 ? 's' : ''}
+          </p>
+        )}
 
         {/* Table */}
         {filteredProduits.length > 0 ? (
@@ -314,9 +504,11 @@ const Produit = () => {
                 <TableHeader>
                   <TableRow className='border-b border-border/50 bg-muted/40 hover:bg-muted/40'>
                     <TableHead className='font-semibold h-14'>Produit</TableHead>
+                    <TableHead className='font-semibold h-14'>Catégorie</TableHead>
                     <TableHead className='font-semibold h-14'>Prix</TableHead>
                     <TableHead className='font-semibold h-14'>Quantité</TableHead>
                     <TableHead className='font-semibold h-14'>Stock</TableHead>
+                    <TableHead className='font-semibold h-14'>Date d'ajout</TableHead>
                     <TableHead className='font-semibold h-14 text-right'>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -341,6 +533,11 @@ const Produit = () => {
                           </div>
                         </TableCell>
                         <TableCell className='py-4'>
+                          <Badge variant='outline' className='font-medium'>
+                            {produit.categorie}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className='py-4'>
                           <span className='font-semibold text-foreground'>{produit.prix.toFixed(2)} €</span>
                         </TableCell>
                         <TableCell className='py-4'>
@@ -351,24 +548,30 @@ const Produit = () => {
                             {stockStatus.label}
                           </Badge>
                         </TableCell>
+                        <TableCell className='py-4'>
+                          <span className='text-sm text-muted-foreground'>{produit.dateAjout}</span>
+                        </TableCell>
                         <TableCell className='py-4 text-right'>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
-                                <MoreHorizontal className='h-4 w-4' />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align='end'>
-                              <DropdownMenuItem onClick={() => handleEdit(produit)}>
-                                <Edit className='h-4 w-4 mr-2' />
-                                Modifier
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleDelete(produit.id)} className='text-red-600'>
-                                <Trash2 className='h-4 w-4 mr-2' />
-                                Supprimer
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                          <div className='flex gap-2 justify-end'>
+                            <Button
+                              onClick={() => handleEdit(produit)}
+                              variant='outline'
+                              size='sm'
+                              className='gap-2'
+                            >
+                              <Edit className='h-4 w-4' />
+                              Modifier
+                            </Button>
+                            <Button
+                              onClick={() => handleDelete(produit.id)}
+                              variant='destructive'
+                              size='sm'
+                              className='gap-2'
+                            >
+                              <Trash2 className='h-4 w-4' />
+                              Supprimer
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     )
