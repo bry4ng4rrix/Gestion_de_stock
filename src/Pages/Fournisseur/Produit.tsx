@@ -57,7 +57,7 @@ const Produit = () => {
 
   const [filteredProduits, setFilteredProduits] = useState<Produit[]>(produits)
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterCategorie, setFilterCategorie] = useState('')
+  const [filterCategorie, setFilterCategorie] = useState('all')
   const [filterDate, setFilterDate] = useState('')
   const [editModalOpen, setEditModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState(false)
@@ -79,7 +79,7 @@ const Produit = () => {
       produit.description.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
-    if (filterCategorie) {
+    if (filterCategorie && filterCategorie !== 'all') {
       filtered = filtered.filter(produit => produit.categorie === filterCategorie)
     }
 
@@ -384,7 +384,7 @@ const Produit = () => {
         </div>
       </div>
       <DialogFooter>
-        <Button variant='outline'>Annuler</Button>
+        
         <Button onClick={isEdit ? handleUpdate : handleAdd} className='gap-2'>
           {isEdit ? 'Mettre à jour' : 'Ajouter'}
         </Button>
@@ -396,15 +396,15 @@ const Produit = () => {
     <div className='min-h-screen bg-gradient-to-br from-background via-background to-accent/5'>
       {/* Header */}
       <div className='sticky top-0 z-40 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80'>
-        <div className='max-w-7xl mx-auto px-6 py-8'>
-          <div className='flex justify-between items-start gap-4'>
+        <div className=' mx-auto px-6 py-8'>
+          <div className='flex justify-between items-center gap-4'>
             <div className='flex-1'>
               <h1 className='text-4xl font-bold text-foreground mb-2'>Catalogue</h1>
               <p className='text-muted-foreground text-lg'>Gérez votre catalogue de {produits.length} produit{produits.length > 1 ? 's' : ''}</p>
             </div>
             <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
               <DialogTrigger asChild>
-                <Button size='lg' className='gap-2 h-12 px-6 whitespace-nowrap'>
+                <Button size='lg' className='gap-2 h-12 px-6 whitespace-nowrap bg-green-500 hover:bg-green-800 hover:shadow-lg'>
                   <Plus className='h-5 w-5' />
                   Nouveau produit
                 </Button>
@@ -416,7 +416,7 @@ const Produit = () => {
       </div>
 
       {/* Content */}
-      <div className='max-w-7xl mx-auto px-6 py-8'>
+      <div className=' mx-auto px-6 py-8'>
         {/* Search Bar */}
         <div className='mb-6'>
           <div className='relative'>
@@ -438,7 +438,7 @@ const Produit = () => {
                 <SelectValue placeholder='Filtrer par catégorie' />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value=''>Toutes les catégories</SelectItem>
+                <SelectItem value='all'>Toutes les catégories</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat} value={cat}>
                     {cat}
@@ -459,7 +459,7 @@ const Produit = () => {
               <Button
                 onClick={() => {
                   setSearchTerm('')
-                  setFilterCategorie('')
+                  setFilterCategorie('all')
                   setFilterDate('')
                 }}
                 variant='outline'
@@ -473,16 +473,15 @@ const Produit = () => {
           <div className='flex gap-2 w-full sm:w-auto'>
             <Button
               onClick={handlePrint}
-              variant='outline'
-              className='gap-2 flex-1 sm:flex-initial'
+              className='gap-2 flex-1 sm:flex-initial bg-yellow-100 text-stone-800 hover:bg-yellow-200'
             >
               <Printer className='h-4 w-4' />
               Imprimer
             </Button>
             <Button
               onClick={handleExportXLSX}
-              variant='outline'
-              className='gap-2 flex-1 sm:flex-initial'
+              
+              className='bg-sky-500 hover:bg-sky-700 gap-2 flex-1 sm:flex-initial'
             >
               <Download className='h-4 w-4' />
               Exporter
