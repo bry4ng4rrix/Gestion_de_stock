@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Home, User, Menu, Package, Users, ClipboardClock } from 'lucide-react';
+import { Home, User, Menu, Package, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
@@ -19,9 +19,9 @@ const navItems: NavItem[] = [
     href: '/',
   },
   {
-    title: 'Historique',
-    icon: <ClipboardClock className="h-5 w-5" />,
-    href: '/historique',
+    title: 'Produits',
+    icon: <Package className="h-5 w-5" />,
+    href: '/produits',
   },
   {
     title: 'Mon Compte',
@@ -30,7 +30,7 @@ const navItems: NavItem[] = [
   },
 ];
 
-export default function ClientLayout() {
+export default function FournisseurLayout() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const isActive = (path: string) => location.pathname === path;
