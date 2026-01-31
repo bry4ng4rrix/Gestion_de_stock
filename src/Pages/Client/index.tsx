@@ -22,8 +22,8 @@ const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState('Tous')
   const [searchQuery, setSearchQuery] = useState('')
   const [fournisseurQuery, setFournisseurQuery] = useState('')
-  // Cart items type with description and fournisseur properties
-const [cartItems, setCartItems] = useState<Array<{nom: string; prix: number; quantity: number; image?: string; categorie: string; description?: string; fournisseur?: string}>>([])
+  // Cart items type with description and fournisseur properties - Fixed for Vercel deployment
+  const [cartItems, setCartItems] = useState<Array<{nom: string; prix: number; quantity: number; image?: string; categorie: string; description?: string; fournisseur?: string}>>([])
   const [isCartOpen, setIsCartOpen] = useState(false)
 
   const Produits = [
