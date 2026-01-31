@@ -295,8 +295,8 @@ const Produit = () => {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Image</TableHead>
               <TableHead>Nom</TableHead>
+              <TableHead>Image</TableHead>
               <TableHead>Quantité</TableHead>
               <TableHead>Prix</TableHead>
               <TableHead>Description</TableHead>
@@ -307,6 +307,8 @@ const Produit = () => {
           <TableBody>
             {paginatedProduits.map((produit) => (
               <TableRow key={produit.id}>
+                <TableCell className='font-medium'>{produit.nom}</TableCell>
+
                 <TableCell>
                   <img
                     src={produit.image}
@@ -314,7 +316,6 @@ const Produit = () => {
                     className='w-16 h-16 object-cover rounded'
                   />
                 </TableCell>
-                <TableCell className='font-medium'>{produit.nom}</TableCell>
                 <TableCell>{produit.quantite}</TableCell>
                 <TableCell>{produit.prix.toFixed(2)} €</TableCell>
                 <TableCell>{produit.description}</TableCell>
