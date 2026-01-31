@@ -467,7 +467,7 @@ const Produit = () => {
           <div className='flex gap-2 w-full sm:w-auto'>
             <Button
               onClick={handlePrint}
-              className='gap-2 flex-1 sm:flex-initial bg-yellow-100 text-stone-800 hover:bg-yellow-200'
+              className='gap-2 flex-1 sm:flex-initial bg-yellow-100 text-stone-800 hover:bg-yellow-200 hover:shadow-md'
             >
               <Printer className='h-4 w-4' />
               Imprimer
@@ -475,7 +475,7 @@ const Produit = () => {
             <Button
               onClick={handleExportXLSX}
               
-              className='bg-sky-500 hover:bg-sky-700 gap-2 flex-1 sm:flex-initial'
+              className='bg-sky-500 hover:bg-sky-700 gap-2 flex-1 sm:flex-initial hover:shadow-md'
             >
               <Download className='h-4 w-4' />
               Exporter
