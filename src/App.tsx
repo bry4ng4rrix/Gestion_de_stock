@@ -9,6 +9,7 @@ import Historique from '@/Pages/Client/Historique';
 import Profile from '@/Pages/Client/Profile'
 import FournisseurLayout from '@/components/layout/FournisseurLayout';
 import Fournisseur from '@/Pages/Fournisseur/index';
+import Produits from '@/Pages/Fournisseur/Produit';
 const App = () => {
   return (
     <Router>
@@ -24,6 +25,7 @@ const App = () => {
           {/* Routes fournisseur */}
           <Route element={<FournisseurLayout />}>
             <Route path="/fournisseur" element={<Fournisseur />} />
+            <Route path="/fournisseur/produits" element={<Produits />} />
           </Route>
             
           {/* Routes du tableau de bord avec mise en page */}

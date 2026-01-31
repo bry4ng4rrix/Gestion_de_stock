@@ -16,17 +16,17 @@ const navItems: NavItem[] = [
   {
     title: 'Accueil',
     icon: <Home className="h-5 w-5" />,
-    href: '/',
+    href: 'fournisseur/',
   },
   {
     title: 'Produits',
     icon: <Package className="h-5 w-5" />,
-    href: '/produits',
+    href: 'fournisseur/produits',
   },
   {
     title: 'Mon Compte',
     icon: <User className="h-5 w-5" />,
-    href: '/compte',
+    href: 'fournisseur/compte',
   },
 ];
 
