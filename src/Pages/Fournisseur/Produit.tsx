@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Edit, Trash2, Plus, Search } from 'lucide-react'
+import { Edit, Trash2, Plus, Search, Printer, Download } from 'lucide-react'
 
 interface Produit {
   id: number
@@ -27,13 +27,14 @@ interface Produit {
   prix: number
   description: string
   dateAjout: string
+  image?: string
 }
 
 const Produit = () => {
   const [produits, setProduits] = useState<Produit[]>([
-    { id: 1, nom: 'Produit A', quantite: 50, prix: 25.99, description: 'Description du produit A', dateAjout: '2024-01-15' },
-    { id: 2, nom: 'Produit B', quantite: 30, prix: 15.50, description: 'Description du produit B', dateAjout: '2024-01-20' },
-    { id: 3, nom: 'Produit C', quantite: 100, prix: 45.00, description: 'Description du produit C', dateAjout: '2024-01-25' },
+    { id: 1, nom: 'Produit A', quantite: 50, prix: 25.99, description: 'Description du produit A', dateAjout: '2024-01-15', image: `https://picsum.photos/seed/produit1/400/300` },
+    { id: 2, nom: 'Produit B', quantite: 30, prix: 15.50, description: 'Description du produit B', dateAjout: '2024-01-20', image: `https://picsum.photos/seed/produit2/400/300` },
+    { id: 3, nom: 'Produit C', quantite: 100, prix: 45.00, description: 'Description du produit C', dateAjout: '2024-01-25', image: `https://picsum.photos/seed/produit3/400/300` },
   ])
   
   const [filteredProduits, setFilteredProduits] = useState<Produit[]>(produits)
@@ -48,6 +49,8 @@ const Produit = () => {
     description: '',
     dateAjout: ''
   })
+  const [itemsPerPage, setItemsPerPage] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
 
   // Filtrer les produits
   React.useEffect(() => {
@@ -56,7 +59,85 @@ const Produit = () => {
       produit.description.toLowerCase().includes(searchTerm.toLowerCase())
     )
     setFilteredProduits(filtered)
+    setCurrentPage(1) // Reset to first page when filtering
   }, [searchTerm, produits])
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredProduits.length / itemsPerPage)
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const paginatedProduits = filteredProduits.slice(startIndex, startIndex + itemsPerPage)
+
+  const handlePrint = () => {
+    const printContent = `
+      <html>
+        <head>
+          <title>Liste des Produits</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            h1 { text-align: center; }
+          </style>
+        </head>
+        <body>
+          <h1>Liste des Produits</h1>
+          <table>
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Quantité</th>
+                <th>Prix</th>
+                <th>Description</th>
+                <th>Date d'ajout</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filteredProduits.map(p => `
+                <tr>
+                  <td>${p.nom}</td>
+                  <td>${p.quantite}</td>
+                  <td>${p.prix.toFixed(2)} €</td>
+                  <td>${p.description}</td>
+                  <td>${new Date(p.dateAjout).toLocaleDateString('fr-FR')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `
+    
+    const printWindow = window.open('', '_blank')
+    if (printWindow) {
+      printWindow.document.write(printContent)
+      printWindow.document.close()
+      printWindow.print()
+    }
+  }
+
+  const handleExportXLSX = () => {
+    const csvContent = [
+      ['Nom', 'Quantité', 'Prix', 'Description', 'Date d\'ajout'],
+      ...filteredProduits.map(p => [
+        p.nom,
+        p.quantite.toString(),
+        p.prix.toFixed(2),
+        p.description,
+        new Date(p.dateAjout).toLocaleDateString('fr-FR')
+      ])
+    ].map(row => row.join(',')).join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `produits_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
 
   const handleEdit = (produit: Produit) => {
     setSelectedProduit(produit)
@@ -102,7 +183,8 @@ const Produit = () => {
       quantite: parseInt(formData.quantite),
       prix: parseFloat(formData.prix),
       description: formData.description,
-      dateAjout: new Date().toISOString().split('T')[0] // Date du jour au format YYYY-MM-DD
+      dateAjout: new Date().toISOString().split('T')[0], // Date du jour au format YYYY-MM-DD
+      image: `https://picsum.photos/seed/${Math.random()}/400/300`
     }
     setProduits([...produits, newProduit])
     setAddModalOpen(false)
@@ -171,8 +253,8 @@ const Produit = () => {
         </Dialog>
       </div>
 
-      {/* Filtre */}
-      <div className='flex items-center space-x-2'>
+      {/* Filtre et actions */}
+      <div className='flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between'>
         <div className='relative flex-1 max-w-sm'>
           <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
           <Input
@@ -182,6 +264,30 @@ const Produit = () => {
             className='pl-10'
           />
         </div>
+        
+        <div className='flex gap-2 items-center'>
+          <Button onClick={handlePrint} variant='outline' size='sm'>
+            <Printer className='mr-2 h-4 w-4' />
+            Imprimer
+          </Button>
+          <Button onClick={handleExportXLSX} variant='outline' size='sm'>
+            <Download className='mr-2 h-4 w-4' />
+            Exporter
+          </Button>
+          <select
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(Number(e.target.value))
+              setCurrentPage(1)
+            }}
+            className='border rounded px-3 py-2 text-sm'
+          >
+            <option value={10}>10 lignes</option>
+            <option value={25}>25 lignes</option>
+            <option value={50}>50 lignes</option>
+            <option value={100}>100 lignes</option>
+          </select>
+        </div>
       </div>
 
       {/* Tableau */}
@@ -189,6 +295,7 @@ const Produit = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>Image</TableHead>
               <TableHead>Nom</TableHead>
               <TableHead>Quantité</TableHead>
               <TableHead>Prix</TableHead>
@@ -198,8 +305,15 @@ const Produit = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProduits.map((produit) => (
+            {paginatedProduits.map((produit) => (
               <TableRow key={produit.id}>
+                <TableCell>
+                  <img
+                    src={produit.image}
+                    alt={produit.nom}
+                    className='w-16 h-16 object-cover rounded'
+                  />
+                </TableCell>
                 <TableCell className='font-medium'>{produit.nom}</TableCell>
                 <TableCell>{produit.quantite}</TableCell>
                 <TableCell>{produit.prix.toFixed(2)} €</TableCell>
@@ -280,6 +394,36 @@ const Produit = () => {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className='flex items-center justify-between'>
+          <div className='text-sm text-gray-600'>
+            Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, filteredProduits.length)} sur {filteredProduits.length} produits
+          </div>
+          <div className='flex gap-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              Précédent
+            </Button>
+            <span className='flex items-center px-3 py-1 text-sm'>
+              Page {currentPage} sur {totalPages}
+            </span>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Suivant
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
