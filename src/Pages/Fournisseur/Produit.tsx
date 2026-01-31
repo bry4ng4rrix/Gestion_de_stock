@@ -495,14 +495,14 @@ const Produit = () => {
             <div className='overflow-x-auto'>
               <Table>
                 <TableHeader>
-                  <TableRow className='border-b border-border/50 bg-muted/40 hover:bg-muted/40'>
-                    <TableHead className='font-semibold h-14'>Produit</TableHead>
-                    <TableHead className='font-semibold h-14'>Catégorie</TableHead>
-                    <TableHead className='font-semibold h-14'>Prix</TableHead>
-                    <TableHead className='font-semibold h-14'>Quantité</TableHead>
-                    <TableHead className='font-semibold h-14'>Stock</TableHead>
-                    <TableHead className='font-semibold h-14'>Date d'ajout</TableHead>
-                    <TableHead className='font-semibold h-14 text-right'>Actions</TableHead>
+                  <TableRow className='border-b font-bold border-border/50 bg-muted/40 hover:bg-muted/40'>
+                    <TableHead className='font-bold h-14'>Produit</TableHead>
+                    <TableHead className='font-bold h-14'>Catégorie</TableHead>
+                    <TableHead className='font-bold h-14'>Prix</TableHead>
+                    <TableHead className='font-bold h-14'>Quantité</TableHead>
+                    <TableHead className='font-bold h-14'>Stock</TableHead>
+                    <TableHead className='font-bold h-14'>Date d'ajout</TableHead>
+                    <TableHead className='font-bold h-14 text-right'>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
