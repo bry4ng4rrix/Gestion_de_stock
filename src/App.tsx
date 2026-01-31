@@ -7,6 +7,8 @@ import { DashboardLayout } from './components/layout/DashboardLayout';
 import ClientLayout from '@/components/layout/ClientLayout';
 import Historique from '@/Pages/Client/Historique';
 import Profile from '@/Pages/Client/Profile'
+import FournisseurLayout from '@/components/layout/FournisseurLayout';
+import Fournisseur from '@/Pages/Fournisseur/index';
 const App = () => {
   return (
     <Router>
@@ -19,7 +21,11 @@ const App = () => {
             <Route path="/historique" element={<Historique />} />
             <Route path="/compte" element={<Profile />} />
           </Route>
-          
+          {/* Routes fournisseur */}
+          <Route element={<FournisseurLayout />}>
+            <Route path="/fournisseur" element={<Fournisseur />} />
+          </Route>
+            
           {/* Routes du tableau de bord avec mise en page */}
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
