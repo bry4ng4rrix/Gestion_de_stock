@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,7 +19,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { Edit, Trash2, Plus, Search, Printer, Download } from 'lucide-react'
+import { Edit, Trash2, Plus, Search, MoreHorizontal } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { ImageIcon } from 'lucide-react'
 
 interface Produit {
   id: number
@@ -36,7 +45,7 @@ const Produit = () => {
     { id: 2, nom: 'Produit B', quantite: 30, prix: 15.50, description: 'Description du produit B', dateAjout: '2024-01-20', image: `https://picsum.photos/seed/produit2/400/300` },
     { id: 3, nom: 'Produit C', quantite: 100, prix: 45.00, description: 'Description du produit C', dateAjout: '2024-01-25', image: `https://picsum.photos/seed/produit3/400/300` },
   ])
-  
+
   const [filteredProduits, setFilteredProduits] = useState<Produit[]>(produits)
   const [searchTerm, setSearchTerm] = useState('')
   const [editModalOpen, setEditModalOpen] = useState(false)
@@ -47,97 +56,47 @@ const Produit = () => {
     quantite: '',
     prix: '',
     description: '',
-    dateAjout: '',
     image: ''
   })
-  const [itemsPerPage, setItemsPerPage] = useState(10)
-  const [currentPage, setCurrentPage] = useState(1)
 
-  // Filtrer les produits
   React.useEffect(() => {
     const filtered = produits.filter(produit =>
       produit.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       produit.description.toLowerCase().includes(searchTerm.toLowerCase())
     )
     setFilteredProduits(filtered)
-    setCurrentPage(1) // Reset to first page when filtering
   }, [searchTerm, produits])
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredProduits.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const paginatedProduits = filteredProduits.slice(startIndex, startIndex + itemsPerPage)
-
-  const handlePrint = () => {
-    const printContent = `
-      <html>
-        <head>
-          <title>Liste des Produits</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-            h1 { text-align: center; }
-          </style>
-        </head>
-        <body>
-          <h1>Liste des Produits</h1>
-          <table>
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Quantité</th>
-                <th>Prix</th>
-                <th>Description</th>
-                <th>Date d'ajout</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${filteredProduits.map(p => `
-                <tr>
-                  <td>${p.nom}</td>
-                  <td>${p.quantite}</td>
-                  <td>${p.prix.toFixed(2)} €</td>
-                  <td>${p.description}</td>
-                  <td>${new Date(p.dateAjout).toLocaleDateString('fr-FR')}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `
-    
-    const printWindow = window.open('', '_blank')
-    if (printWindow) {
-      printWindow.document.write(printContent)
-      printWindow.document.close()
-      printWindow.print()
+  const handleImageUpload = (file: File) => {
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setFormData({ ...formData, image: e.target?.result as string })
+      }
+      reader.readAsDataURL(file)
     }
   }
 
-  const handleExportXLSX = () => {
-    const csvContent = [
-      ['Nom', 'Quantité', 'Prix', 'Description', 'Date d\'ajout'],
-      ...filteredProduits.map(p => [
-        p.nom,
-        p.quantite.toString(),
-        p.prix.toFixed(2),
-        p.description,
-        new Date(p.dateAjout).toLocaleDateString('fr-FR')
-      ])
-    ].map(row => row.join(',')).join('\n')
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', `produits_${new Date().toISOString().split('T')[0]}.csv`)
-    link.style.visibility = 'hidden'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const files = Array.from(e.dataTransfer.files)
+    const imageFile = files.find(file => file.type.startsWith('image/'))
+    if (imageFile) {
+      handleImageUpload(imageFile)
+    }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleImageUpload(file)
+    }
   }
 
   const handleEdit = (produit: Produit) => {
@@ -147,7 +106,6 @@ const Produit = () => {
       quantite: produit.quantite.toString(),
       prix: produit.prix.toString(),
       description: produit.description,
-      dateAjout: produit.dateAjout,
       image: produit.image || ''
     })
     setEditModalOpen(true)
@@ -169,378 +127,278 @@ const Produit = () => {
               quantite: parseInt(formData.quantite),
               prix: parseFloat(formData.prix),
               description: formData.description,
-              dateAjout: formData.dateAjout,
               image: formData.image
             }
           : p
       ))
       setEditModalOpen(false)
       setSelectedProduit(null)
+      setFormData({ nom: '', quantite: '', prix: '', description: '', image: '' })
     }
   }
 
   const handleAdd = () => {
     const newProduit: Produit = {
-      id: Math.max(...produits.map(p => p.id)) + 1,
+      id: Math.max(...produits.map(p => p.id), 0) + 1,
       nom: formData.nom,
       quantite: parseInt(formData.quantite),
       prix: parseFloat(formData.prix),
       description: formData.description,
-      dateAjout: new Date().toISOString().split('T')[0], // Date du jour au format YYYY-MM-DD
-      image: `https://picsum.photos/seed/${Math.random()}/400/300`
+      dateAjout: new Date().toISOString().split('T')[0],
+      image: formData.image || `https://picsum.photos/seed/${Math.random()}/400/300`
     }
     setProduits([...produits, newProduit])
     setAddModalOpen(false)
-    setFormData({ nom: '', quantite: '', prix: '', description: '', dateAjout: '', image: '' })
+    setFormData({ nom: '', quantite: '', prix: '', description: '', image: '' })
   }
 
-  // Fonctions pour gérer les images
-  const handleImageUpload = (file: File) => {
-    if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        setFormData({ ...formData, image: e.target?.result as string })
-      }
-      reader.readAsDataURL(file)
-    }
+  const getStockStatus = (quantite: number) => {
+    if (quantite === 0) return { label: 'Rupture', color: 'bg-red-500/10 text-red-700' }
+    if (quantite < 20) return { label: 'Faible', color: 'bg-amber-500/10 text-amber-700' }
+    return { label: 'En stock', color: 'bg-emerald-500/10 text-emerald-700' }
   }
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
+  const FormModal = ({ isEdit = false }: { isEdit?: boolean }) => (
+    <DialogContent className='max-w-2xl'>
+      <DialogHeader>
+        <DialogTitle>{isEdit ? 'Modifier le produit' : 'Ajouter un nouveau produit'}</DialogTitle>
+        <DialogDescription>
+          {isEdit ? 'Modifiez les informations du produit ci-dessous.' : 'Remplissez les informations pour ajouter un nouveau produit.'}
+        </DialogDescription>
+      </DialogHeader>
+      <div className='space-y-6'>
+        <div className='grid grid-cols-2 gap-4'>
+          <div>
+            <label className='block text-sm font-medium mb-2'>Nom du produit</label>
+            <Input
+              value={formData.nom}
+              onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+              placeholder='Ex: Produit Premium'
+              className='h-10'
+            />
+          </div>
+          <div>
+            <label className='block text-sm font-medium mb-2'>Prix (€)</label>
+            <Input
+              type='number'
+              step='0.01'
+              value={formData.prix}
+              onChange={(e) => setFormData({ ...formData, prix: e.target.value })}
+              placeholder='0.00'
+              className='h-10'
+            />
+          </div>
+        </div>
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    
-    const files = Array.from(e.dataTransfer.files)
-    const imageFile = files.find(file => file.type.startsWith('image/'))
-    
-    if (imageFile) {
-      handleImageUpload(imageFile)
-    }
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      handleImageUpload(file)
-    }
-  }
-
-  return (
-    <div className='p-6 space-y-6'>
-      <div className='flex justify-between items-center'>
-        <h1 className='text-2xl font-bold'>Gestion des Produits</h1>
-        <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
-          <DialogTrigger asChild>
-            <Button className='bg-blue-600 hover:bg-blue-700'>
-              <Plus className='mr-2 h-4 w-4' />
-              Ajouter un produit
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Ajouter un nouveau produit</DialogTitle>
-              <DialogDescription>
-                Remplissez les informations pour ajouter un nouveau produit.
-              </DialogDescription>
-            </DialogHeader>
-            <div className='space-y-4'>
-              <div>
-                <label className='text-sm font-medium'>Nom</label>
-                <Input
-                  value={formData.nom}
-                  onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
-                  placeholder='Nom du produit'
-                />
-              </div>
-              <div>
-                <label className='text-sm font-medium'>Quantité</label>
-                <Input
-                  type='number'
-                  value={formData.quantite}
-                  onChange={(e) => setFormData({ ...formData, quantite: e.target.value })}
-                  placeholder='Quantité'
-                />
-              </div>
-              <div>
-                <label className='text-sm font-medium'>Prix</label>
-                <Input
-                  type='number'
-                  step='0.01'
-                  value={formData.prix}
-                  onChange={(e) => setFormData({ ...formData, prix: e.target.value })}
-                  placeholder='Prix'
-                />
-              </div>
-              <div>
-                <label className='text-sm font-medium'>Description</label>
-                <Input
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder='Description'
-                />
-              </div>
-              <div>
-                <label className='text-sm font-medium'>Image</label>
-                <div
-                  className='border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors cursor-pointer'
-                  onDragOver={handleDragOver}
-                  onDrop={handleDrop}
-                >
-                  {formData.image ? (
-                    <div className='space-y-2'>
-                      <img
-                        src={formData.image}
-                        alt='Aperçu'
-                        className='w-32 h-32 object-cover rounded mx-auto'
-                      />
-                      <p className='text-sm text-gray-600'>Glissez une nouvelle image ou cliquez pour changer</p>
-                    </div>
-                  ) : (
-                    <div className='space-y-2'>
-                      <div className='w-12 h-12 bg-gray-200 rounded-full mx-auto flex items-center justify-center'>
-                        <Plus className='w-6 h-6 text-gray-400' />
-                      </div>
-                      <p className='text-sm text-gray-600'>Glissez une image ici ou cliquez pour sélectionner</p>
-                    </div>
-                  )}
-                  <input
-                    type='file'
-                    accept='image/*'
-                    onChange={handleFileChange}
-                    className='hidden'
-                    id='image-upload-add'
-                  />
-                  <label
-                    htmlFor='image-upload-add'
-                    className='cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium'
-                  >
-                    Choisir un fichier
-                  </label>
-                </div>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={handleAdd}>Ajouter</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Filtre et actions */}
-      <div className='flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between'>
-        <div className='relative flex-1 max-w-sm'>
-          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400' />
+        <div>
+          <label className='block text-sm font-medium mb-2'>Quantité</label>
           <Input
-            placeholder='Rechercher un produit...'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className='pl-10'
+            type='number'
+            value={formData.quantite}
+            onChange={(e) => setFormData({ ...formData, quantite: e.target.value })}
+            placeholder='0'
+            className='h-10'
           />
         </div>
-        
-        <div className='flex gap-2 items-center'>
-          <Button onClick={handlePrint} variant='outline' size='sm'>
-            <Printer className='mr-2 h-4 w-4' />
-            Imprimer
-          </Button>
-          <Button onClick={handleExportXLSX} variant='outline' size='sm'>
-            <Download className='mr-2 h-4 w-4' />
-            Exporter
-          </Button>
-          <select
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value))
-              setCurrentPage(1)
-            }}
-            className='border rounded px-3 py-2 text-sm'
+
+        <div>
+          <label className='block text-sm font-medium mb-2'>Description</label>
+          <Input
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            placeholder='Description du produit'
+            className='h-10'
+          />
+        </div>
+
+        <div>
+          <label className='block text-sm font-medium mb-3'>Image du produit</label>
+          <div
+            className='border-2 border-dashed border-border rounded-xl p-8 text-center hover:bg-accent/50 transition-colors cursor-pointer'
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
           >
-            <option value={10}>10 lignes</option>
-            <option value={25}>25 lignes</option>
-            <option value={50}>50 lignes</option>
-            <option value={100}>100 lignes</option>
-          </select>
+            {formData.image ? (
+              <div className='space-y-3'>
+                <img
+                  src={formData.image || "/placeholder.svg"}
+                  alt='Aperçu'
+                  className='w-40 h-40 object-cover rounded-lg mx-auto'
+                />
+                <p className='text-sm text-muted-foreground'>Cliquez ou glissez pour changer l'image</p>
+              </div>
+            ) : (
+              <div className='space-y-3'>
+                <div className='w-16 h-16 bg-secondary rounded-full mx-auto flex items-center justify-center'>
+                  <ImageIcon className='w-8 h-8 text-muted-foreground' />
+                </div>
+                <div>
+                  <p className='text-sm font-medium'>Glissez une image ici</p>
+                  <p className='text-xs text-muted-foreground mt-1'>ou cliquez pour sélectionner</p>
+                </div>
+              </div>
+            )}
+            <input
+              type='file'
+              accept='image/*'
+              onChange={handleFileChange}
+              className='hidden'
+              id={`image-upload-${isEdit ? 'edit' : 'add'}`}
+            />
+            <label
+              htmlFor={`image-upload-${isEdit ? 'edit' : 'add'}`}
+              className='cursor-pointer text-primary hover:text-primary/80 text-sm font-medium inline-block mt-3'
+            >
+              Choisir un fichier
+            </label>
+          </div>
+        </div>
+      </div>
+      <DialogFooter>
+        <Button variant='outline'>Annuler</Button>
+        <Button onClick={isEdit ? handleUpdate : handleAdd} className='gap-2'>
+          {isEdit ? 'Mettre à jour' : 'Ajouter'}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  )
+
+  return (
+    <div className='min-h-screen bg-gradient-to-br from-background via-background to-accent/5'>
+      {/* Header */}
+      <div className='sticky top-0 z-40 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80'>
+        <div className=' mx-auto px-6 py-8'>
+          <div className='flex justify-between items-start gap-4'>
+            <div className='flex-1'>
+              <h1 className='text-4xl font-bold text-foreground mb-2'>Catalogue</h1>
+              <p className='text-muted-foreground text-lg'>Gérez votre catalogue de {produits.length} produit{produits.length > 1 ? 's' : ''}</p>
+            </div>
+            <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
+              <DialogTrigger asChild>
+                <Button size='lg' className='gap-2 h-12 px-6 whitespace-nowrap'>
+                  <Plus className='h-5 w-5' />
+                  Nouveau produit
+                </Button>
+              </DialogTrigger>
+              <FormModal />
+            </Dialog>
+          </div>
         </div>
       </div>
 
-      {/* Tableau */}
-      <div className='border rounded-lg'>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Nom</TableHead>
-              <TableHead>Image</TableHead>
-              <TableHead>Quantité</TableHead>
-              <TableHead>Prix</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Date d'ajout</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {paginatedProduits.map((produit) => (
-              <TableRow key={produit.id}>
-                <TableCell className='font-medium'>{produit.nom}</TableCell>
+      {/* Content */}
+      <div className='mx-auto px-6 py-8'>
+        {/* Search Bar */}
+        <div className='mb-8'>
+          <div className='relative'>
+            <Search className='absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none' />
+            <Input
+              placeholder='Rechercher un produit par nom ou description...'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className='pl-12 h-12 text-base'
+            />
+          </div>
+          {searchTerm && (
+            <p className='mt-2 text-sm text-muted-foreground'>
+              {filteredProduits.length} résultat{filteredProduits.length !== 1 ? 's' : ''} trouvé{filteredProduits.length !== 1 ? 's' : ''}
+            </p>
+          )}
+        </div>
 
-                <TableCell>
-                  <img
-                    src={produit.image}
-                    alt={produit.nom}
-                    className='w-16 h-16 object-cover rounded'
-                  />
-                </TableCell>
-                <TableCell>{produit.quantite}</TableCell>
-                <TableCell>{produit.prix.toFixed(2)} €</TableCell>
-                <TableCell>{produit.description}</TableCell>
-                <TableCell>{new Date(produit.dateAjout).toLocaleDateString('fr-FR')}</TableCell>
-                <TableCell>
-                  <div className='flex space-x-2'>
-                    <Dialog open={editModalOpen && selectedProduit?.id === produit.id} onOpenChange={setEditModalOpen}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant='outline'
-                          size='sm'
-                          onClick={() => handleEdit(produit)}
-                        >
-                          <Edit className='h-4 w-4' />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Modifier le produit</DialogTitle>
-                          <DialogDescription>
-                            Modifiez les informations du produit.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className='space-y-4'>
-                          <div>
-                            <label className='text-sm font-medium'>Nom</label>
-                            <Input
-                              value={formData.nom}
-                              onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
-                              placeholder='Nom du produit'
-                            />
-                          </div>
-                          <div>
-                            <label className='text-sm font-medium'>Quantité</label>
-                            <Input
-                              type='number'
-                              value={formData.quantite}
-                              onChange={(e) => setFormData({ ...formData, quantite: e.target.value })}
-                              placeholder='Quantité'
-                            />
-                          </div>
-                          <div>
-                            <label className='text-sm font-medium'>Prix</label>
-                            <Input
-                              type='number'
-                              step='0.01'
-                              value={formData.prix}
-                              onChange={(e) => setFormData({ ...formData, prix: e.target.value })}
-                              placeholder='Prix'
-                            />
-                          </div>
-                          <div>
-                            <label className='text-sm font-medium'>Description</label>
-                            <Input
-                              value={formData.description}
-                              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                              placeholder='Description'
-                            />
-                          </div>
-                          <div>
-                            <label className='text-sm font-medium'>Image</label>
-                            <div
-                              className='border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors cursor-pointer'
-                              onDragOver={handleDragOver}
-                              onDrop={handleDrop}
-                            >
-                              {formData.image ? (
-                                <div className='space-y-2'>
-                                  <img
-                                    src={formData.image}
-                                    alt='Aperçu'
-                                    className='w-32 h-32 object-cover rounded mx-auto'
-                                  />
-                                  <p className='text-sm text-gray-600'>Glissez une nouvelle image ou cliquez pour changer</p>
-                                </div>
-                              ) : (
-                                <div className='space-y-2'>
-                                  <div className='w-12 h-12 bg-gray-200 rounded-full mx-auto flex items-center justify-center'>
-                                    <Plus className='w-6 h-6 text-gray-400' />
-                                  </div>
-                                  <p className='text-sm text-gray-600'>Glissez une image ici ou cliquez pour sélectionner</p>
-                                </div>
-                              )}
-                              <input
-                                type='file'
-                                accept='image/*'
-                                onChange={handleFileChange}
-                                className='hidden'
-                                id='image-upload'
+        {/* Table */}
+        {filteredProduits.length > 0 ? (
+          <div className='rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm'>
+            <div className='overflow-x-auto'>
+              <Table>
+                <TableHeader>
+                  <TableRow className='border-b border-border/50 bg-muted/40 hover:bg-muted/40'>
+                    <TableHead className='font-semibold h-14'>Produit</TableHead>
+                    <TableHead className='font-semibold h-14'>Prix</TableHead>
+                    <TableHead className='font-semibold h-14'>Quantité</TableHead>
+                    <TableHead className='font-semibold h-14'>Stock</TableHead>
+                    <TableHead className='font-semibold h-14 text-right'>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredProduits.map((produit, idx) => {
+                    const stockStatus = getStockStatus(produit.quantite)
+                    return (
+                      <TableRow key={produit.id} className={`border-b border-border/50 hover:bg-muted/30 transition-colors ${idx !== filteredProduits.length - 1 ? '' : 'border-b-0'}`}>
+                        <TableCell className='py-4'>
+                          <div className='flex items-center gap-3'>
+                            <div className='w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0'>
+                              <img
+                                src={produit.image || '/placeholder.svg'}
+                                alt={produit.nom}
+                                className='w-full h-full object-cover'
                               />
-                              <label
-                                htmlFor='image-upload'
-                                className='cursor-pointer text-blue-600 hover:text-blue-700 text-sm font-medium'
-                              >
-                                Choisir un fichier
-                              </label>
+                            </div>
+                            <div className='flex-1 min-w-0'>
+                              <p className='font-semibold text-foreground truncate'>{produit.nom}</p>
+                              <p className='text-sm text-muted-foreground truncate'>{produit.description}</p>
                             </div>
                           </div>
-                        </div>
-                        <DialogFooter>
-                          <Button onClick={handleUpdate}>Mettre à jour</Button>
-                        </DialogFooter>
-                      </DialogContent>
-                    </Dialog>
-                    <Button
-                      variant='destructive'
-                      size='sm'
-                      onClick={() => handleDelete(produit.id)}
-                    >
-                      <Trash2 className='h-4 w-4' />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                        </TableCell>
+                        <TableCell className='py-4'>
+                          <span className='font-semibold text-foreground'>{produit.prix.toFixed(2)} €</span>
+                        </TableCell>
+                        <TableCell className='py-4'>
+                          <span className='text-foreground'>{produit.quantite}</span>
+                        </TableCell>
+                        <TableCell className='py-4'>
+                          <Badge variant='secondary' className={`${stockStatus.color} border-0 font-medium`}>
+                            {stockStatus.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className='py-4 text-right'>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
+                                <MoreHorizontal className='h-4 w-4' />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align='end'>
+                              <DropdownMenuItem onClick={() => handleEdit(produit)}>
+                                <Edit className='h-4 w-4 mr-2' />
+                                Modifier
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDelete(produit.id)} className='text-red-600'>
+                                <Trash2 className='h-4 w-4 mr-2' />
+                                Supprimer
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        ) : (
+          <div className='rounded-xl border border-border/50 bg-card/50 p-12 text-center'>
+            <div className='w-16 h-16 bg-muted rounded-full mx-auto mb-4 flex items-center justify-center'>
+              <Search className='h-8 w-8 text-muted-foreground' />
+            </div>
+            <h3 className='text-lg font-semibold text-foreground mb-2'>Aucun produit trouvé</h3>
+            <p className='text-muted-foreground mb-6'>
+              {searchTerm ? 'Essayez de modifier votre recherche.' : 'Commencez par ajouter votre premier produit.'}
+            </p>
+            {searchTerm && (
+              <Button onClick={() => setSearchTerm('')} variant='outline'>
+                Réinitialiser la recherche
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className='flex items-center justify-between'>
-          <div className='text-sm text-gray-600'>
-            Affichage de {startIndex + 1} à {Math.min(startIndex + itemsPerPage, filteredProduits.length)} sur {filteredProduits.length} produits
-          </div>
-          <div className='flex gap-2'>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-              disabled={currentPage === 1}
-            >
-              Précédent
-            </Button>
-            <span className='flex items-center px-3 py-1 text-sm'>
-              Page {currentPage} sur {totalPages}
-            </span>
-            <Button
-              variant='outline'
-              size='sm'
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-              disabled={currentPage === totalPages}
-            >
-              Suivant
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* Edit Dialog */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <FormModal isEdit={true} />
+      </Dialog>
     </div>
   )
 }
