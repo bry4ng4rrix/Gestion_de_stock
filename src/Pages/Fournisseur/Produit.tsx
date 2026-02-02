@@ -489,7 +489,7 @@ const Produit = () => {
           </p>
         )}
 
-        {/* Table */}
+        {/* Table avec recherche */}
         {filteredProduits.length > 0 ? (
           <div className='rounded-xl border border-border/50 bg-card overflow-hidden shadow-sm'>
             <div className='overflow-x-auto'>
