@@ -1,34 +1,35 @@
-import { useState } from 'react';
-import { Search, Printer, Trash2, Eye,SendHorizontal, ArrowUpDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { Card } from '@/components/ui/card';
+import { useState } from 'react'
+import { Search, Printer, Trash2, Eye, SendHorizontal, ArrowUpDown, Calendar } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { format } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 
 // Types
 type ProduitVendu = {
-  id: number;
-  nom: string;
-  quantite: number;
-  prixUnitaire: number;
-  categorie: string;
-};
+  id: number
+  nom: string
+  quantite: number
+  prixUnitaire: number
+  categorie: string
+}
 
 type Facture = {
-  id: string;
-  date: Date;
-  produits: ProduitVendu[];
-  montantTotal: number;
-};
+  id: string
+  date: Date
+  produits: ProduitVendu[]
+  montantTotal: number
+}
 
 const Historique = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dateDebut, setDateDebut] = useState('');
-  const [dateFin, setDateFin] = useState('');
-  const [factureSelectionnee, setFactureSelectionnee] = useState<Facture | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('')
+  const [dateDebut, setDateDebut] = useState('')
+  const [dateFin, setDateFin] = useState('')
+  const [factureSelectionnee, setFactureSelectionnee] = useState<Facture | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   // Données factices pour l'exemple
   const factures: Facture[] = [
@@ -41,81 +42,126 @@ const Historique = () => {
       ],
       montantTotal: 1389
     },
-    // Ajoutez plus de factures ici
-  ];
+    {
+      id: 'FACT-002',
+      date: new Date('2024-01-25'),
+      produits: [
+        { id: 3, nom: 'Clavier Mécanique', quantite: 1, prixUnitaire: 189, categorie: 'Accessoires' },
+        { id: 4, nom: 'Écran 4K', quantite: 1, prixUnitaire: 599, categorie: 'Électronique' }
+      ],
+      montantTotal: 788
+    },
+    {
+      id: 'FACT-003',
+      date: new Date('2024-02-10'),
+      produits: [
+        { id: 5, nom: 'Adaptateur USB-C', quantite: 3, prixUnitaire: 29, categorie: 'Accessoires' }
+      ],
+      montantTotal: 87
+    }
+  ]
 
   // Filtrer les factures
   const facturesFiltrees = factures.filter(facture => {
-    const correspondRecherche = facture.id.toLowerCase().includes(searchTerm.toLowerCase());
-    const correspondDateDebut = !dateDebut || new Date(facture.date) >= new Date(dateDebut);
-    const correspondDateFin = !dateFin || new Date(facture.date) <= new Date(dateFin + 'T23:59:59');
-    
-    return correspondRecherche && correspondDateDebut && correspondDateFin;
-  });
+    const correspondRecherche = facture.id.toLowerCase().includes(searchTerm.toLowerCase())
+    const correspondDateDebut = !dateDebut || new Date(facture.date) >= new Date(dateDebut)
+    const correspondDateFin = !dateFin || new Date(facture.date) <= new Date(dateFin + 'T23:59:59')
+
+    return correspondRecherche && correspondDateDebut && correspondDateFin
+  })
 
   // Calculer les totaux
   const calculerTotalProduits = (produits: ProduitVendu[]) => {
-    return produits.reduce((total, produit) => total + produit.quantite, 0);
-  };
+    return produits.reduce((total, produit) => total + produit.quantite, 0)
+  }
 
   const getNombreCategories = (produits: ProduitVendu[]) => {
-    const categories = new Set(produits.map(p => p.categorie));
-    return categories.size;
-  };
+    const categories = new Set(produits.map(p => p.categorie))
+    return categories.size
+  }
 
   // Gérer l'impression
   const handlePrint = () => {
-    // Logique d'impression
-    window.print();
-  };
+    window.print()
+  }
 
   // Gérer la suppression
   const handleDelete = (id: string) => {
-    // Logique de suppression
-    console.log('Supprimer la facture', id);
-  };
+    console.log('Supprimer la facture', id)
+  }
 
   // Formater la date
   const formaterDate = (date: Date) => {
-    return format(date, 'dd MMMM yyyy', { locale: fr });
-  };
+    return format(date, 'dd MMMM yyyy', { locale: fr })
+  }
+
+  const totalVentes = facturesFiltrees.reduce((sum, f) => sum + f.montantTotal, 0)
 
   return (
-    <div className="min-h-screen p-6 ">
-      <div className=" mx-auto">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Historique des Ventes</h1>
-        
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/30 p-6 md:p-8">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="mb-8 space-y-2">
+          <h1 className="text-4xl font-light tracking-tight text-foreground">Historique des Ventes</h1>
+          <p className="text-muted-foreground">Consultez et gérez vos factures de vente</p>
+        </div>
+
+        {/* Stats */}
+        <div className="mb-8 grid gap-4 md:grid-cols-3">
+          <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+            <div className="text-sm font-medium text-muted-foreground">Total des factures</div>
+            <div className="mt-2 text-3xl font-light text-primary">{facturesFiltrees.length}</div>
+          </div>
+          <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+            <div className="text-sm font-medium text-muted-foreground">Montant total</div>
+            <div className="mt-2 text-3xl font-light text-primary">{totalVentes.toFixed(2)} €</div>
+          </div>
+          <div className="rounded-lg border border-border bg-card p-6 shadow-sm">
+            <div className="text-sm font-medium text-muted-foreground">Produits Totale</div>
+            <div className="mt-2 text-3xl font-light text-primary">
+              {facturesFiltrees.reduce((sum, f) => sum + calculerTotalProduits(f.produits), 0)}
+            </div>
+          </div>
+        </div>
+
         {/* Filtres */}
-        <div className=" p-4 rounded-lg shadow-sm mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="mb-8 rounded-lg border border-border bg-card p-6 shadow-sm">
+          <h2 className="mb-4 text-lg font-medium text-foreground">Filtres</h2>
+          <div className="grid gap-4 md:grid-cols-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
-              <Input
-                type="date"
-                value={dateDebut}
-                onChange={(e) => setDateDebut(e.target.value)}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
-              <Input
-                type="date"
-                value={dateFin}
-                onChange={(e) => setDateFin(e.target.value)}
-                className="w-full"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Rechercher</label>
+              <label className="block text-sm font-medium text-foreground mb-2">Date de début</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="date"
+                  value={dateDebut}
+                  onChange={(e) => setDateDebut(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Date de fin</label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="date"
+                  value={dateFin}
+                  onChange={(e) => setDateFin(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">Rechercher</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Rechercher une facture..."
+                  placeholder="N° Facture..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full"
+                  className="pl-10"
                 />
               </div>
             </div>
@@ -123,190 +169,167 @@ const Historique = () => {
         </div>
 
         {/* Tableau des factures */}
-        <Card className="bg-white shadow-sm rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50 fon-bold">
-                <tr >
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    <div className="flex items-center">
-                      N° Facture
-                      <ArrowUpDown className="ml-1 h-4 w-4" />
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Montant Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Produits
-                  </th>
-                  <th className="px-2 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Catégories
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {facturesFiltrees.map((facture) => (
-                  <tr key={facture.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {facture.id}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formaterDate(facture.date)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                      {facture.montantTotal.toFixed(2)} €
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {calculerTotalProduits(facture.produits)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+        <div className="rounded-lg border border-border bg-card shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader className="bg-secondary/50">
+              <TableRow className="hover:bg-secondary/50 border-secondary/20">
+                <TableHead className="font-semibold text-foreground">N° Facture</TableHead>
+                <TableHead className="font-semibold text-foreground">Date</TableHead>
+                <TableHead className="text-right font-semibold text-foreground">Montant Total</TableHead>
+                <TableHead className="text-center font-semibold text-foreground">Produits</TableHead>
+                <TableHead className="text-center font-semibold text-foreground">Catégories</TableHead>
+                <TableHead className="text-right font-semibold text-foreground">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {facturesFiltrees.map((facture) => (
+                <TableRow key={facture.id} className="border-secondary/30 hover:bg-secondary/30">
+                  <TableCell className="font-medium text-foreground">{facture.id}</TableCell>
+                  <TableCell className="text-muted-foreground">{formaterDate(facture.date)}</TableCell>
+                  <TableCell className="text-right font-medium text-primary">
+                    {facture.montantTotal.toFixed(2)} €
+                  </TableCell>
+                  <TableCell className="text-center text-muted-foreground">
+                    {calculerTotalProduits(facture.produits)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge variant="secondary" className="bg-accent/10 text-accent hover:bg-accent/20">
                       {getNombreCategories(facture.produits)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => {
-                          setFactureSelectionnee(facture);
-                          setIsDialogOpen(true);
+                          setFactureSelectionnee(facture)
+                          setIsDialogOpen(true)
                         }}
-                        className="text-blue-600 hover:bg-blue-50"
+                        className="text-primary hover:bg-primary/10 hover:text-primary"
                       >
-                        <Eye className="h-4 w-4 mr-1" />
-                        Voir
+                        <Eye className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={handlePrint}
-                        className="text-gray-600 hover:bg-gray-50"
+                        className="text-muted-foreground hover:bg-muted hover:text-foreground"
                       >
-                        <Printer className="h-4 w-4 mr-1" />
-                        Imprimer
+                        <Printer className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(facture.id)}
-                        className="text-red-600 hover:bg-red-50"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                       >
-                        <Trash2 className="h-4 w-4 mr-1" />
-                        Supprimer
+                        <Trash2 className="h-4 w-4" />
                       </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          {facturesFiltrees.length === 0 && (
+            <div className="p-8 text-center">
+              <p className="text-muted-foreground">Aucune facture trouvée</p>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Modal de détail de la facture */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle className="flex justify-between items-center">
-              <span>Détails de la facture {factureSelectionnee?.id}</span>
-              
+            <DialogTitle className="text-2xl font-light text-foreground">
+              Détails de la facture {factureSelectionnee?.id}
             </DialogTitle>
           </DialogHeader>
-          
+
           {factureSelectionnee && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-4 md:grid-cols-2 border-b border-border pb-6">
                 <div>
-                  <p className="text-sm text-gray-500">Date</p>
-                  <p className="font-medium">{formaterDate(factureSelectionnee.date)}</p>
+                  <p className="text-sm font-medium text-muted-foreground">Date</p>
+                  <p className="mt-1 text-lg font-medium text-foreground">
+                    {formaterDate(factureSelectionnee.date)}
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Total</p>
-                  <p className="text-xl font-bold">{factureSelectionnee.montantTotal.toFixed(2)} €</p>
+                  <p className="text-sm font-medium text-muted-foreground">Montant total</p>
+                  <p className="mt-1 text-2xl font-light text-primary">
+                    {factureSelectionnee.montantTotal.toFixed(2)} €
+                  </p>
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4">
-                <h3 className="text-lg font-medium mb-4">Produits</h3>
-                <div className="overflow-hidden border border-gray-200 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Produit
-                        </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Quantité
-                        </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Prix unitaire
-                        </th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Total
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+              <div>
+                <h3 className="mb-4 text-lg font-medium text-foreground">Produits</h3>
+                <div className="rounded-lg border border-border overflow-hidden">
+                  <Table>
+                    <TableHeader className="bg-secondary/50">
+                      <TableRow className="hover:bg-secondary/50 border-secondary/20">
+                        <TableHead className="font-semibold text-foreground">Produit</TableHead>
+                        <TableHead className="text-right font-semibold text-foreground">Quantité</TableHead>
+                        <TableHead className="text-right font-semibold text-foreground">Prix unitaire</TableHead>
+                        <TableHead className="text-right font-semibold text-foreground">Total</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
                       {factureSelectionnee.produits.map((produit) => (
-                        <tr key={produit.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {produit.nom}
-                            <p className="text-xs text-gray-500">{produit.categorie}</p>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                            {produit.quantite}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                        <TableRow key={produit.id} className="border-secondary/30 hover:bg-secondary/30">
+                          <TableCell>
+                            <div>
+                              <div className="font-medium text-foreground">{produit.nom}</div>
+                              <div className="text-xs text-muted-foreground">{produit.categorie}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right text-muted-foreground">{produit.quantite}</TableCell>
+                          <TableCell className="text-right text-muted-foreground">
                             {produit.prixUnitaire.toFixed(2)} €
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
+                          </TableCell>
+                          <TableCell className="text-right font-medium text-primary">
                             {(produit.quantite * produit.prixUnitaire).toFixed(2)} €
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       ))}
-                    </tbody>
-                  </table>
+                    </TableBody>
+                  </Table>
                 </div>
               </div>
 
-              <div className="flex justify-between space-x-4 pt-4 border-t border-gray-200">
-               
+              <div className="flex items-center justify-between border-t border-border pt-6">
                 <Button
-                  variant="destructive"
+                  variant="outline"
                   onClick={() => {
-                    handleDelete(factureSelectionnee.id);
-                    setIsDialogOpen(false);
+                    handleDelete(factureSelectionnee.id)
+                    setIsDialogOpen(false)
                   }}
-                  className="flex items-center"
+                  className="border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <Trash2 className="mr-2 h-4 w-4" />
                   Supprimer
                 </Button>
-                <div className='flex gap-2'>
-                   <Button
-                  variant="outline"
-                  onClick={handlePrint}
-                  className="flex items-center border-lime-200"
-                >
-                  <Printer className="h-4 w-4 mr-2" />
-                  Imprimer
-                </Button>
-
-                 <Button
-                  variant="default"
-                  onClick={handlePrint}
-                  className="flex items-center bg-blue-500 text-white hover:bg-blue-800"
-                >
-                  <SendHorizontal className="h-4 w-4 mr-2" />
-                  
-                 Envoyer
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={handlePrint}
+                    className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary bg-transparent"
+                  >
+                    <Printer className="mr-2 h-4 w-4" />
+                    Imprimer
+                  </Button>
+                  <Button
+                    className="bg-primary text-primary-foreground hover:bg-primary/90"
+                    onClick={handlePrint}
+                  >
+                    <SendHorizontal className="mr-2 h-4 w-4" />
+                    Envoyer
+                  </Button>
                 </div>
               </div>
             </div>
@@ -314,7 +337,7 @@ const Historique = () => {
         </DialogContent>
       </Dialog>
     </div>
-  );
-};
+  )
+}
 
-export default Historique;
+export default Historique

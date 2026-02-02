@@ -214,7 +214,7 @@ const Page = () => {
   <div className="fixed bottom-6 right-6 z-50">
     <Button 
       onClick={() => setIsCartOpen(true)}
-      className="relative inline-flex items-center gap-2 px-6 py-3 bg-lime-500 text-lime-50 hover:bg-lime-600 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+      className="relative inline-flex items-center gap-2 px-6 py-3 bg-lime-800 text-lime-50 hover:bg-lime-600 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
     >
       <ShoppingCart className="h-5 w-5" />
       <span className="font-semibold">Panier</span>
@@ -314,7 +314,7 @@ const Page = () => {
                     size='sm'
                     onClick={() => addToCart(produit)}
                     disabled={produit.stock === 0}
-                    className='bg-green-500 text-lime-50 hover:bg-lime-700 hover:text-lime-50 gap-2 disabled:bg-lime-500 disabled:text-lime-950 disabled:cursor-not-allowed '
+                    className='bg-green-700 text-lime-50 hover:bg-lime-800 hover:text-lime-50 gap-2 disabled:bg-lime-500 disabled:text-lime-950 disabled:cursor-not-allowed '
                   >
                     <ShoppingCart size={16} />
                     Ajouter
