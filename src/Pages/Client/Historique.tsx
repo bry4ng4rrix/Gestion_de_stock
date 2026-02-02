@@ -200,13 +200,13 @@ const Historique = () => {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => {
                           setFactureSelectionnee(facture)
                           setIsDialogOpen(true)
                         }}
-                        className="text-primary hover:bg-primary/10 hover:text-primary"
+                        className="border-sky-200 text-primary hover:bg-primary/10 hover:text-primary"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
